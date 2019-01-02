@@ -1,0 +1,49 @@
+//
+//  SharedClass.h
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 6/9/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "BONJOB-Bridging-Header.h"
+#import "BONJOB-Swift.h"
+@interface SharedClass : NSObject
++ (id)sharedInstance;
++(NSString *)getUserId;
++ (NSString *)capitalizeFirstLetterOnlyOfString:(NSString *)string;
++(void)setShadowOnView:(UIView *)view;
++(void)setBorderOnButton:(UIButton *)button;
++(void)setBorderOnImage:(UIImageView *)button;
++(void)setShadowOnTextField:(UITextField *)textfield;
++(void)setShadowOnTextView:(UITextView *)textfield;
++(void)addLabelInUITableViewViewBackGround:(UITableView *)tableView;
++(void)setButtonShadow:(UIButton *)btn;
++(void)setShadowLookView:(UIView *)view;
++ (UIColor *)colorWithHexString:(NSString *)hexString;
++(void)showToast:(UIViewController *)vc toastMsg:(NSString *)msg;
+- (UIImage *)imageFromMovie:(NSURL *)movieURL atTime:(NSTimeInterval)time;
++(NSString *)getDateStringFromFormat:(NSString *)dateString inputDateFormat:(NSString *)inputDateStr outputDateFormat:(NSString *)outPutDateStr;
++(NSDate *)getDateFromStringFormat:(NSString *)dateString inputDateFormat:(NSString *)inputDateStr;
++(NSString*)getTimeDurationBetweenToDate:(NSDate*)startDate dateTo:(NSDate*)endDate;
++(NSString *)getCurrentTimestamp;
++(void)MakeAlert:(UITextField *)textField;
++(void)MakeAlertTextView:(UITextView *)textView;
++(void)MakeAlertonLabel:(UILabel *)label;
++(void)DismissAlert:(UITextField *)textField;
++(void)DismissAlertTextView:(UITextView *)textView;
++(void)showPopupView:(UIView *)v;
++(void)hidePopupView:(UIView *)v;
++(void)showPopupView:(UIView *)v andTabbar:(UITabBarController *)tabbar;
++(void)hidePopupView:(UIView *)v andTabbar:(UITabBarController *)tabbar;
+-(UIImage *)thumbnailFromVideoAtURL:(NSURL *)contentURL;
++(NSMutableArray *)getJobOffer;
++(NSMutableArray *)getCuisineService;
++(NSMutableArray *)getSelleService;
++(NSMutableArray *)getHotelService;
++(NSMutableArray *)getCountryList;
++(NSMutableArray *)getCountryCode;
+@property(nonatomic) int counter;
++(void)setLabelOnTableviewBackground :(UITableView*)tblView title:(NSString*)str;
+@end

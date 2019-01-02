@@ -1,0 +1,22 @@
+//
+//  FindajobViewController.h
+//  BONJOB
+//
+//  Created by Infoicon Technologies on 01/05/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import <FBSDKLoginKit/FBSDKLoginKit.h>
+@interface FindajobViewController : UIViewController<ProcessDataDelegate>
+{
+    NSString *whichsegment;
+}
+@property (weak, nonatomic) IBOutlet UILabel *lblFindAjob;
+@property(nonatomic,strong)NSString *prevPlaceIdentifier;
+@property (weak, nonatomic) IBOutlet UIImageView *imgLogin;
+@property (weak, nonatomic) IBOutlet UILabel *lblTermsCondition;
+- (IBAction)btnTermsAction:(id)sender;
+
+@end

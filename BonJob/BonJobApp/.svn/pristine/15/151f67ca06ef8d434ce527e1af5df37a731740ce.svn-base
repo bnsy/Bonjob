@@ -1,0 +1,125 @@
+//
+//  PostajobViewController.h
+//  BonjobDesign
+//
+//  Created by Infoicon Technologies on 20/06/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "NIDropDown.h"
+
+
+
+@interface JobOverViewCell:UITableViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *imgItem;
+@property (weak, nonatomic) IBOutlet UILabel *lblItemName;
+@property (weak, nonatomic) IBOutlet UILabel *lblItemValue;
+@end
+
+
+
+
+
+
+@interface PostajobViewController : UIViewController<UICollectionViewDelegate, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource,locationSelectedDelegate,UITextViewDelegate,UITextFieldDelegate,NIDropDownDelegate,ProcessDataDelegate,UIAlertViewDelegate>
+{
+    UITextField *txtSelect;
+    NIDropDown *dropDown;
+}
+@property (weak, nonatomic) IBOutlet UIImageView *lblPopupOverViewLocation;
+-(void)rel; // for drop down release;
+@property (weak, nonatomic) IBOutlet UILabel *lblSpecifyJobTitile;
+@property (weak, nonatomic) IBOutlet UILabel *lblLocationOfJob;
+@property (weak, nonatomic) IBOutlet UILabel *lblClkCompleteJobOffer;
+@property (weak, nonatomic) IBOutlet UILabel *lblStartDate;
+@property (weak, nonatomic) IBOutlet UILabel *lblAddtionalDescription;
+@property (weak, nonatomic) IBOutlet UILabel *lblTotalCharacterCount;
+@property (weak, nonatomic) IBOutlet UILabel *lblModeofContact;
+@property (weak, nonatomic) IBOutlet UILabel *lblSpecifyModeofContact;
+@property (weak, nonatomic) IBOutlet UILabel *lblContactBonjob;
+@property (weak, nonatomic) IBOutlet UILabel *lblContactPhone;
+@property (weak, nonatomic) IBOutlet UILabel *lblContactEmail;
+@property(nonatomic,strong) NSString *index;
+@property(nonatomic,strong) NSString *identifier;
+//OverView Popup outlet
+
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupJobTitle;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupJobExperience;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupJobContract;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupNumberOfHours;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupJobStartDate;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupTypeofContract;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupModeofContactPlaceHolder;
+//
+@property (weak, nonatomic) IBOutlet UILabel *lblOverViewTypeofContact;
+@property (strong, nonatomic) IBOutlet UIView *viewjoboffered;
+@property (strong, nonatomic) IBOutlet UICollectionView *collectionviewjoboffer;
+@property (strong, nonatomic) IBOutlet UIButton *btnpublishoutlet;
+@property (strong, nonatomic) IBOutlet UIButton *btnoverviewoutlet;
+@property (strong, nonatomic) IBOutlet UITextView *textviewadditionaldescription;
+@property (strong, nonatomic) IBOutlet UIView *viewbackgroundoverview;
+@property (strong, nonatomic) IBOutlet UIView *viewoverviewdeatails;
+@property (strong, nonatomic) IBOutlet UIView *viewtypeofcontract;
+@property (strong, nonatomic) IBOutlet UITableView *tableviewcontract;
+@property (weak, nonatomic) IBOutlet UILabel *lblLocation;
+@property (weak, nonatomic) IBOutlet UILabel *lblPhoto;
+
+@property (weak, nonatomic) IBOutlet UIView *viewModeOfContact;
+@property (weak, nonatomic) IBOutlet UITextField *txtModeofContact;
+@property (weak, nonatomic) IBOutlet UITextField *txtJobOffered;
+@property (weak, nonatomic) IBOutlet UIButton *btnRadioBonjob;
+@property (weak, nonatomic) IBOutlet UIButton *btnRadioPhone;
+@property (weak, nonatomic) IBOutlet UIButton *btnRadioEmail;
+@property (weak, nonatomic) IBOutlet UILabel *lblFrench;
+@property (weak, nonatomic) IBOutlet UILabel *lblEnglish;
+@property (weak, nonatomic) IBOutlet UIButton *btnFrench;
+@property (weak, nonatomic) IBOutlet UIButton *btnEnglish;
+@property (weak, nonatomic) IBOutlet UILabel *lblIndicateLabguageOfOffer;
+
+// Property for popup
+@property (strong, nonatomic) IBOutlet UIImageView *imageoverview;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupJobTitleValue;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupContractValue;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupJobExperinceValue;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupNumberOfHrsValue;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupStartDateValue;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupDescriptionValue;
+@property (weak, nonatomic) IBOutlet UILabel *lblPopupLocationValue;
+//Outlet For JobPostSuccess
+@property (weak, nonatomic) IBOutlet UIView *viewJobPostSuccessBackground;
+@property (weak, nonatomic) IBOutlet UIView *viewJobPostSuccessPopup;
+@property (weak, nonatomic) IBOutlet UILabel *lblJobPostSuccessMsg;
+@property (weak, nonatomic) IBOutlet UIButton *btnViewMyOffer;
+@property (weak, nonatomic) IBOutlet UIButton *btnEditMyProfile;
+- (IBAction)btnViewMyOfferAction:(id)sender;
+- (IBAction)btnEditMyProfileAction:(id)sender;
+// Property for Languages Popup
+@property (weak, nonatomic) IBOutlet UIView *viewLanguagesPopup;
+@property (weak, nonatomic) IBOutlet UILabel *lblLanguagesPopupTitle;
+@property (weak, nonatomic) IBOutlet UIButton *btnValidateLanguages;
+@property (weak, nonatomic) IBOutlet UITableView *tblLanguages;
+- (IBAction)btnValidateLanguagesAction:(id)sender;
+- (IBAction)btnCloseLanguagesPopupAction:(id)sender;
+//:::::::::::---------------
+//Actions
+- (IBAction)btnRadioBonjob:(id)sender;
+- (IBAction)btnRadioPhone:(id)sender;
+- (IBAction)btnRadioEmail:(id)sender;
+- (IBAction)btnCameraAction:(id)sender;
+- (IBAction)btnLocationAction:(id)sender;
+- (IBAction)btnCalenderAction:(id)sender;
+- (IBAction)btnPublishAction:(id)sender;
+- (IBAction)btnOverviewAction:(id)sender;
+- (IBAction)btnEnglishAction:(id)sender;
+- (IBAction)btnFrenchAction:(id)sender;
+
+@property (weak, nonatomic) IBOutlet UIButton *btnPopupPublish;
+- (IBAction)btnPopupPublishAction:(id)sender;
+- (IBAction)btnJobOfferDropDownAction:(id)sender;
+// outlet for overviewpopup
+@property (weak, nonatomic) IBOutlet UITableView *tblOverViewData;
+
+
+@property(nonatomic) BOOL isEdit;
+@end

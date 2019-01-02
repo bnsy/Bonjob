@@ -1,0 +1,13 @@
+//
+//  ChatFixedCell.h
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 6/16/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+@interface ChatFixedCell : UITableViewCell
+
+@end

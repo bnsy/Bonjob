@@ -1,0 +1,322 @@
+//
+//  PaymentDetailsViewController.m
+//  BONJOB
+//
+//  Created by VISHAL SETH on 09/02/18.
+//  Copyright © 2018 Infoicon. All rights reserved.
+//
+
+#import "PaymentDetailsViewController.h"
+#import <StoreKit/StoreKit.h>
+
+@interface PaymentDetailsViewController ()<UITextFieldDelegate,ProcessDataDelegate,SKPaymentTransactionObserver, SKProductsRequestDelegate,UITextFieldDelegate>
+{
+    UITextField *currentTextfield;
+    WebserviceHelper *web;
+}
+@property (strong, nonatomic) SKProduct *product;
+@property (strong, nonatomic) NSString *productID;
+@property (strong, nonatomic) NSMutableArray *products;
+@end
+
+@implementation PaymentDetailsViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    [SharedClass setShadowOnView:self.viewPopup];
+    [SharedClass setBorderOnButton:self.btnPayment];
+    if ([[self.planDict valueForKey:@"subscription_title"] isEqualToString:@"1 Mois"])
+    {
+        //Abonnement 1 mois :
+        _lblPaymentType.text=[NSString stringWithFormat:@"%@ %@",@"Abonnement",@"1 Mois :"];
+        [self.lblTotalHtPlaceHolder setHidden:YES];
+        [self.lblHtPrice setHidden:YES];
+        _lblTotalHTHeight.constant=0;
+        _lblTotalHTPrice.constant=0;
+    }
+    else
+    {
+         _lblPaymentType.text=[NSString stringWithFormat:@"%@ %@",@"Abonnement",@"1 An :"];
+        [self.lblTotalHtPlaceHolder setHidden:NO];
+        [self.lblHtPrice setHidden:NO];
+    }
+    NSString *htPrice=[self.planDict valueForKey:@"description"];//[[self.planDict valueForKey:@"description"]componentsSeparatedByString:@"HT"];
+    
+    
+    
+    _lblPrice.text=[NSString stringWithFormat:@"%@",htPrice];
+    //_lblHtPrice.text=[NSString stringWithFormat:@"%@",htPrice[0]];
+    _lblHtPrice.text = [NSString stringWithFormat:@"%@ %@",[self.planDict valueForKey:@"amount"],PriceSymbol];
+    //_lblHtPrice.text=[NSString stringWithFormat:@"%@",htPrice];
+    _lblTTCPrice.text=[NSString stringWithFormat:@"%@ %@",[self.planDict valueForKey:@"total_amount"],PriceSymbol];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(btncloseAction) name:@"Close" object:nil];
+    
+    
+    
+    
+    [[SKPaymentQueue defaultQueue]
+     addTransactionObserver:self];
+    [self getProduct];
+    web = [[WebserviceHelper alloc]init];
+    [web progressHUD:@""];
+    
+}
+
+
+-(void)btncloseAction
+{
+    
+    [self dismissViewControllerAnimated:NO completion:nil];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.scrollView setContentSize:CGSizeMake(self.view.frame.size.width, _viewPopup.frame.origin.y+_viewPopup.frame.size.height+20)];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)btnClosePopupAction:(id)sender
+{
+    [[SKPaymentQueue defaultQueue] removeTransactionObserver:self];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+-(void)getProduct
+{
+    NSMutableSet* skus = [NSMutableSet set];
+    [skus addObject:@"com.ludovic.mensuel"];
+    [skus addObject:@"com.ludovic.annuel"];
+    
+    if ([SKPaymentQueue canMakePayments])
+    {
+        SKProductsRequest *request = [[SKProductsRequest alloc]
+                                      initWithProductIdentifiers:
+                                      skus];
+        request.delegate = self;
+        
+        [request start];
+    }
+    else
+    {
+        // _productDescription.text =
+        // @"Please enable In App Purchase in Settings";
+    }
+}
+
+- (IBAction)btnPaymentAction:(id)sender
+{
+    if ([self validate])
+    {
+        [currentTextfield resignFirstResponder];
+        if ([[self.planDict valueForKey:@"subscription_id"] intValue]==1)
+        {
+            SKPayment *payment = [SKPayment paymentWithProduct:self.products[0]];
+            [[SKPaymentQueue defaultQueue] addPayment:payment];
+        }
+        else
+        {
+            SKPayment *payment = [SKPayment paymentWithProduct:self.products[1]];
+            [[SKPaymentQueue defaultQueue] addPayment:payment];
+        }
+        [web progressHUD:@""];
+    }
+    
+    
+}
+
+-(void)productsRequest:(SKProductsRequest *)request didReceiveResponse:(SKProductsResponse *)response
+{
+    [web hideProcess];
+    self.products=[[NSMutableArray alloc]init];
+    self.products = [response.products mutableCopy];
+    
+    if (self.products.count != 0)
+    {
+        _product = self.products[0];
+    }
+    else
+    {
+        
+    }
+    
+    //self.products = response.invalidProductIdentifiers;
+    
+    for (SKProduct *product in self.products)
+    {
+        NSLog(@"Product  found: %@", product);
+    }
+}
+
+- (void)request:(SKRequest *)request didFailWithError:(NSError *)error
+{
+    [web hideProcess];
+    UIAlertView *alert=[[UIAlertView alloc]initWithTitle:@"BonJob" message:error.localizedDescription delegate:nil cancelButtonTitle:NSLocalizedString(@"Ok", @"") otherButtonTitles:nil, nil];
+    [alert show];
+}
+
+#pragma mark -
+#pragma mark SKPaymentTransactionObserver
+
+-(void)paymentQueue:(SKPaymentQueue *)queue updatedTransactions:(NSArray *)transactions
+{
+    [web hideProcess];
+    for (SKPaymentTransaction *transaction in transactions)
+    {
+        switch (transaction.transactionState)
+        {
+            case SKPaymentTransactionStatePurchased:
+                [self unlockFeature];
+                [[SKPaymentQueue defaultQueue]
+                 finishTransaction:transaction];
+                break;
+                
+            case SKPaymentTransactionStateFailed:
+                NSLog(@"Transaction Failed");
+                [[SKPaymentQueue defaultQueue]
+                 finishTransaction:transaction];
+                break;
+                
+            default:
+                break;
+        }
+    }
+}
+
+-(void)unlockFeature
+{
+    [self payAMount:@""];
+}
+
+
+
+
+-(void)payAMount:(NSString *)tokenID
+{
+    //{"stripe_token":"tok_1BsqPNHkf9XsjlOG4DANeI88","first_name":"sushant","last_name":"Kumar","subscription_id":"1","enterprise":"infoicon","email":"sushant@infoicon.co.in","location":"Noida","postal_code":"201301"}
+    if ([self validate])
+    {
+        NSMutableDictionary *params=[[NSMutableDictionary alloc]init];
+        [params setValue:@"" forKey:@"stripe_token"];
+        [params setValue:_txtFirstName.text forKey:@"first_name"];
+         [params setValue:@"in_app_payment" forKey:@"in_app_payment"];
+        [params setValue:_txtLastName.text forKey:@"last_name"];
+        [params setValue:[self.planDict valueForKey:@"subscription_id"] forKey:@"subscription_id"];
+        [params setValue:_txtEnterPrise.text forKey:@"enterprise"];
+        [params setValue:_txtEmail.text forKey:@"email"];
+        [params setValue:@"Paris" forKey:@"location"];
+        [params setValue:_txtPpstalCode.text forKey:@"postal_code"];
+        WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+        webhelper.delegate=self;
+        webhelper.methodName=@"kMakePayment";
+        [webhelper webserviceHelper:params webServiceUrl:kMakePayment methodName:@"kMakePayment" showHud:YES inWhichViewController:self];
+    }
+    else
+    {
+        
+    }
+    
+    
+}
+#pragma mark - ------UITEXTFIELD DELEGATES---------
+- (void)textFieldDidBeginEditing:(UITextField *)textField
+{
+    currentTextfield=textField;
+}
+-(BOOL) NSStringIsValidEmail:(NSString *)checkString
+{
+    BOOL stricterFilter = NO;
+    NSString *stricterFilterString = @"^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
+    NSString *laxString = @"^.+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2}[A-Za-z]*$";
+    NSString *emailRegex = stricterFilter ? stricterFilterString : laxString;
+    NSPredicate *emailTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", emailRegex];
+    return [emailTest evaluateWithObject:checkString];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return true;
+}
+
+-(BOOL)validate
+{
+    if (_txtFirstName.text.length==0)
+    {
+        [SharedClass MakeAlert:_txtFirstName];
+        return false;
+    }
+    else if (_txtLastName.text.length==0)
+    {
+        [SharedClass MakeAlert:_txtLastName];
+        return false;
+    }
+    else if (_txtEnterPrise.text.length==0)
+    {
+        [SharedClass MakeAlert:_txtEnterPrise];
+        return false;
+    }
+    else if (_txtPpstalCode.text.length==0)
+    {
+        [SharedClass MakeAlert:_txtPpstalCode];
+        return false;
+    }
+    else if (_txtVill.text.length==0)
+    {
+        [SharedClass MakeAlert:_txtVill];
+        return false;
+    }
+    else if (_txtEmail.text.length==0)
+    {
+        [SharedClass MakeAlert:_txtEmail];
+        return false;
+    }
+    else if ([self NSStringIsValidEmail:_txtEmail.text]==NO)
+    {
+        [SharedClass MakeAlert:_txtEmail];
+        return false;
+    }
+    
+
+    else
+        return true;
+    
+}
+
+
+- (void)inProgress:(float)value
+{
+    
+}
+
+- (void)processSuccessful:(NSDictionary *)responseDict methodName:(NSString *)methodNameIs
+{
+    if ([methodNameIs isEqualToString:@"kMakePayment"])
+    {
+        if ([[responseDict valueForKey:@"success"] boolValue]==YES)
+        {
+            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.delegate paymentDone:YES];
+            APPDELEGATE.currentPlanDict=nil;
+            APPDELEGATE.currentPlanDict=[responseDict valueForKey:@"data"];
+          //  [APPDELEGATE.currentPlanDict setValue:@"0" forKey:@"search_candidate_count"];
+        }
+        else
+        {
+            [self dismissViewControllerAnimated:YES completion:nil];
+            [self.delegate paymentDone:NO];
+        }
+    }
+}
+
+
+
+
+@end

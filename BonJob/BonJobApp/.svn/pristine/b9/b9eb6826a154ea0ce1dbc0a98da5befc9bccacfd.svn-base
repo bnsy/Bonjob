@@ -1,0 +1,82 @@
+//
+//  Alerter.swift
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 9/20/17.
+//  Copyright © 2017 Infoicon. All rights reserved.
+//
+
+import UIKit
+import SwiftMessages
+class Alerter: NSObject
+{
+    //SwiftMessages.show(config: status2Config, view: status2)
+
+    static let sharedInstance = Alerter()
+    func ShowSuccess(msg:String)
+    {
+        let success = MessageView.viewFromNib(layout: .cardView)
+        success.configureTheme(.success)
+        success.configureDropShadow()
+        success.configureContent(title: "BonJob", body: msg)
+        success.button?.isHidden = true
+        var successConfig = SwiftMessages.defaultConfig
+        successConfig.presentationStyle = .top
+   //     successConfig.duration = .seconds(seconds: 1.0)
+
+
+   //  successConfig.presentationStyle = .custom(animator: UIWindow) //.window(windowLevel: UIWindowLevelNormal)
+        SwiftMessages.show(config: successConfig, view: success)
+    }
+    
+    func showInfo(msg:String)
+    {
+        let info = MessageView.viewFromNib(layout: .messageView)
+        info.configureTheme(.info)
+        info.button?.isHidden = true
+        info.configureContent(title: "BonJob", body:NSLocalizedString(msg, comment: msg))
+        var infoConfig = SwiftMessages.defaultConfig
+        infoConfig.presentationStyle = .bottom
+        infoConfig.duration = .seconds(seconds: 1.0)
+        SwiftMessages.show(config: infoConfig, view: info)
+    }
+    
+    func showWarning(msg:String)
+    {
+        let warning = MessageView.viewFromNib(layout: .cardView)
+        warning.configureTheme(.warning)
+        warning.configureDropShadow()
+        
+        let iconText = ["🤔", "😳", "🙄", "😶"].sm_random()!
+        warning.configureContent(title: "BonJob", body: NSLocalizedString(msg, comment: msg) , iconText: iconText)
+        warning.button?.isHidden = true
+        var warningConfig = SwiftMessages.defaultConfig
+        warningConfig.presentationStyle = .top
+       // warningConfig.presentationStyle = .window(windowLevel: UIWindowLevelStatusBar)
+        SwiftMessages.show(config: warningConfig, view: warning)
+    }
+    
+    func showError(msg:String)
+    {
+        let error = MessageView.viewFromNib(layout: .tabView)
+        error.configureTheme(.error)
+        error.configureContent(title: "Bonjob", body: msg)
+        error.button?.setTitle("Stop", for: .normal)
+        error.button?.isHidden=true;
+        error.button?.isHidden = true
+        SwiftMessages.show(view: error)
+    }
+    
+    func showMessageOnStatus(msg:String)
+    {
+        let status = MessageView.viewFromNib(layout: .statusLine)
+        status.backgroundView.backgroundColor = UIColor.purple
+        status.bodyLabel?.textColor = UIColor.white
+        status.configureContent(body: msg)
+        var statusConfig = SwiftMessages.defaultConfig
+       // statusConfig.presentationStyle = .window(windowLevel: UIWindowLevelStatusBar)
+         statusConfig.presentationStyle = .top
+        SwiftMessages.show(config: statusConfig, view: status)
+    }
+
+}

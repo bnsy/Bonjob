@@ -1,0 +1,687 @@
+//
+//  ApplyFilterViewController.m
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 6/13/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import "ApplyFilterViewController.h"
+#import "GetJobModel.h"
+#import "Common.h"
+#import "BonJob-Swift.h"
+
+@implementation FilterPopupCell
+
+
+
+@end
+
+
+@interface ApplyFilterViewController ()
+{
+    NSString *strContract,*strLevelOfEducation,*strFullTime,*strExperience,*strJobTitle;
+    int currentItem;
+    int SelectedIndex1,SelectedIndex2,SelectedIndex3,SelectedIndex4;
+    NSMutableArray *arrSelectedEducations;
+    NSMutableArray *arrStrContract,*arrStrFullTime,*arrStrExperience;
+    UIView *viewFooter;
+    NSMutableArray *arrContract,*arrEducation,*arrExperience,*arrHours;
+    NSMutableArray *arrSelContract,*arrSelEducation,*arrSelExperience,*arrSelHours;
+}
+@end
+
+@implementation ApplyFilterViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    arrContract = [[NSMutableArray alloc]init];
+    arrEducation = [[NSMutableArray alloc]init];
+    arrExperience = [[NSMutableArray alloc]init];
+    arrHours = [[NSMutableArray alloc]init];
+    
+    arrSelContract = [[NSMutableArray alloc]init];
+    arrSelEducation = [[NSMutableArray alloc]init];
+    arrSelExperience = [[NSMutableArray alloc]init];
+    arrSelHours = [[NSMutableArray alloc]init];
+    
+    
+    arrSelectedEducations=[[NSMutableArray alloc]init];
+    arrStrContract=[[NSMutableArray alloc]init];
+    arrStrFullTime=[[NSMutableArray alloc]init];
+    arrStrExperience=[[NSMutableArray alloc]init];
+    
+    [[self navigationController] setNavigationBarHidden:NO animated:YES];
+    [self.navigationController.navigationBar setTitleTextAttributes:
+     @{NSForegroundColorAttributeName:TitleColor}];
+    [SharedClass setBorderOnButton:self.btnSearch];
+    
+    self.title=[SharedClass capitalizeFirstLetterOnlyOfString:NSLocalizedString(@"Filters", @"")] ;
+    [_btnCancel setTitle:NSLocalizedString(@"Cancel", @"")];
+    [_btnSearch setTitle:NSLocalizedString(@"Search", @"") forState:UIControlStateNormal];
+    _btnSearch.backgroundColor=InternalButtonColor;
+    _lblCuisine.text=NSLocalizedString(@"Catering", @"");
+    _lblService.text=NSLocalizedString(@"Service", @"");
+    _lblHotel.text=NSLocalizedString(@"Hotel", @"");
+    
+    _lblTypeofContact.text=NSLocalizedString(@"Type of contract", @"");
+    _lblLevelofEducation.text=NSLocalizedString(@"Level of education", @"");
+    _lblFullPartTime.text=NSLocalizedString(@"Full / Part time", @"");
+    _lblExperience.text=NSLocalizedString(@"Experience", @"");
+    _lblpopUpTtle.text=NSLocalizedString(@"Filters", @"");
+    
+    strContract=NSLocalizedString(@"Type of contract", @"");
+    strLevelOfEducation=NSLocalizedString(@"Level of education", @"");
+    strFullTime=NSLocalizedString(@"Full / Part time", @"");
+    strExperience=NSLocalizedString(@"Experience", @"");
+    
+    
+    _viewPopup.layer.cornerRadius=15.0;
+    _viewPopup.layer.masksToBounds=YES;
+    
+    _viewBackground.hidden=YES;
+    _viewPopup.hidden=YES;
+    SelectedIndex1=-1;
+    SelectedIndex2=-1;
+    SelectedIndex3=-1;
+    SelectedIndex4=-1;
+    
+   // _btnOk.layer.cornerRadius=5.0;
+    [SharedClass setBorderOnButton:_btnOk];
+    
+    
+    self.maintblView.tableFooterView = [UIView new];
+    
+//   viewFooter=[[UIView alloc]initWithFrame:CGRectMake(0,_viewPopup.frame.size.height-60, self.view.frame.size.width, 60)];
+//    [viewFooter setBackgroundColor:[UIColor whiteColor]];
+//    UIButton *btnOk=[[UIButton alloc]initWithFrame:CGRectMake(_viewPopup.frame.size.width/2-75, 6, 150, 48)];
+//    [btnOk setBackgroundColor:InternalButtonColor];
+//    [btnOk setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//    [btnOk setTitle:NSLocalizedString(@"Ok", @"") forState:UIControlStateNormal];
+//    //   btnOk.layer.cornerRadius=10;
+//    [SharedClass setBorderOnButton:btnOk];
+//    btnOk.clipsToBounds=YES;
+//
+//    [btnOk addTarget:self action:@selector(btnClosePopupAction:) forControlEvents:UIControlEventTouchUpInside];
+//    [viewFooter addSubview:btnOk];
+//    [viewFooter setTag:1005];
+//    [_viewPopup addSubview:viewFooter];
+
+    // Do any additional setup after loading the view.
+    [self getJobSearchDropDowns];
+}
+
+-(void)setData
+{
+    if ([arrStrContract count]>0)
+    {
+         _lblTypeofContact.text=    [arrStrContract componentsJoinedByString:@","];
+    }
+    else
+    {
+        strContract=NSLocalizedString(@"Type of contract", @"");
+         _lblTypeofContact.text=    strContract;
+    }
+    
+    if ([arrStrExperience count]>0)
+    {
+         _lblExperience.text=[arrStrExperience componentsJoinedByString:@","];
+    }
+    else
+    {
+         strExperience=NSLocalizedString(@"Experience", @"");
+         _lblExperience.text=strExperience;
+    }
+    
+    if ([arrSelectedEducations count]>0)
+    {
+        _lblLevelofEducation.text=[arrSelectedEducations componentsJoinedByString:@","];
+    }
+    else
+    {
+        strLevelOfEducation=NSLocalizedString(@"Level of education", @"");
+        _lblLevelofEducation.text=strLevelOfEducation;
+    }
+    
+    if ([arrStrFullTime count]>0)
+    {
+        _lblFullPartTime.text=[arrStrFullTime componentsJoinedByString:@","];
+    }
+    else
+   {
+       strFullTime=NSLocalizedString(@"Full / Part time", @"");
+       _lblFullPartTime.text=strFullTime;
+   }
+    
+    
+   
+}
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [[self navigationController] setNavigationBarHidden:NO animated:YES];
+    
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[self navigationController] setNavigationBarHidden:YES animated:YES];
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - ------- Buttons Actions Here-----------
+
+- (IBAction)btnCancelTapped:(id)sender
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+- (IBAction)btnSearchTapped:(id)sender
+{
+    [self getJobList];
+}
+- (IBAction)btnOkAction:(id)sender
+{
+    [SharedClass hidePopupView:_viewBackground andTabbar:self.tabBarController];
+    [SharedClass hidePopupView:_viewPopup];
+}
+
+- (IBAction)btnClosePopupAction:(id)sender
+{
+    [SharedClass hidePopupView:_viewBackground andTabbar:self.tabBarController];
+    [SharedClass hidePopupView:_viewPopup];
+    if (currentItem==2)
+    {
+        UIView *vw=[_tblPopup viewWithTag:1005];
+        [vw removeFromSuperview];
+    }
+}
+
+- (IBAction)btnCusineAction:(id)sender
+{
+    [_btnCuisine setSelected:YES];
+    strJobTitle=_lblCuisine.text;
+}
+
+- (IBAction)btnServiceAction:(id)sender
+{
+    [_btnService setSelected:YES];
+    strJobTitle=_lblService.text;
+}
+
+- (IBAction)btnHoteAction:(id)sender
+{
+    [_btnHotel setSelected:YES];
+    strJobTitle=_lblHotel.text;
+}
+
+- (IBAction)btnTyoeOfContractAction:(id)sender
+{
+    
+    _lblLevelofEducation.text=NSLocalizedString(@"Level of education", @"");
+    _lblFullPartTime.text=NSLocalizedString(@"Full / Part time", @"");
+    _lblExperience.text=NSLocalizedString(@"Experience", @"");
+    _lblpopUpTtle.text=NSLocalizedString(@"Type of contract", @"");
+    currentItem=1;
+    _viewBackground.hidden=NO;
+    _viewPopup.hidden=NO;
+    [SharedClass showPopupView:_viewBackground andTabbar:self.tabBarController];
+    [SharedClass showPopupView:_viewPopup];
+    [_tblPopup reloadData];
+}
+
+- (IBAction)btnLevelOfEducationAction:(id)sender
+{
+    _lblFullPartTime.text=NSLocalizedString(@"Full / Part time", @"");
+    _lblExperience.text=NSLocalizedString(@"Experience", @"");
+    _lblpopUpTtle.text=NSLocalizedString(@"Level of education", @"");
+    currentItem=2;
+    _viewBackground.hidden=NO;
+    _viewPopup.hidden=NO;
+    [SharedClass showPopupView:_viewBackground andTabbar:self.tabBarController];
+    [SharedClass showPopupView:_viewPopup];
+  
+    [_tblPopup reloadData];
+    
+    
+    
+}
+
+- (IBAction)btnFullTimeAction:(id)sender
+{
+    /*
+     "Full-time"         =   "Temps plein";
+     "<10h / week"       =   "< 10h/semaine";
+     "10h / week"        =   "10h/semaine";
+     "15h / week"        =   "15h/semaine";
+     "20h / week"        =   "20h/semaine";
+     "25h / week"        =   "25h/semaine";
+     "30h / week"        =   "30h/semaine";
+     */
+    //"Number of hours"
+    _lblExperience.text=NSLocalizedString(@"Experience", @"");
+    _lblpopUpTtle.text=NSLocalizedString(@"Number of hours", @"");
+    currentItem=3;
+    _viewBackground.hidden=NO;
+    _viewPopup.hidden=NO;
+    [SharedClass showPopupView:_viewBackground andTabbar:self.tabBarController];
+    [SharedClass showPopupView:_viewPopup];
+  
+    [_tblPopup reloadData];
+
+}
+
+- (IBAction)btnExperienceAction:(id)sender
+{
+    _lblpopUpTtle.text=NSLocalizedString(@"Experience", @"");
+    currentItem=4;
+    _viewBackground.hidden=NO;
+    _viewPopup.hidden=NO;
+    [SharedClass showPopupView:_viewBackground andTabbar:self.tabBarController];
+    [SharedClass showPopupView:_viewPopup];
+   
+    [_tblPopup reloadData];
+}
+
+#pragma mark - ------Apply Filters Here------------
+
+-(void)getJobSearchDropDowns
+{
+    WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+    webhelper.delegate=self;
+    webhelper.methodName=@"jobSearchDropDowns";
+    [webhelper webserviceHelper:kGetJobSearchDropDowns showHud:YES];
+    
+}
+
+
+
+-(void)getJobList
+{
+    //{"user_id":"1","start":"10","job_title":"dsdsds","contract_type":"zxxxzx","education_level":"B.Tech","experience":"4 years","num_of_hours":"4 hours"}
+    NSMutableDictionary *params=[[NSMutableDictionary alloc]init];
+    [params setValue:[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"user_id"] forKey:@"user_id"];
+    [params setValue:@"1" forKey:@"start"];
+    [params setValue:strJobTitle forKey:@"job_title"];
+    [params setValue:arrSelContract forKey:@"contract_type"];
+    [params setValue:arrSelEducation forKey:@"education_level"];
+    [params setValue:arrSelExperience forKey:@"experience"];
+    [params setValue:arrSelHours forKey:@"num_of_hours"];
+    WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+    webhelper.methodName=@"getJob";
+    webhelper.delegate=self;
+    [webhelper webserviceHelper:params webServiceUrl:kGetJobList methodName:@"getJob" showHud:YES inWhichViewController:self];
+}
+-(void)processSuccessful:(NSDictionary *)responseDict methodName:(NSString *)methodNameIs
+{
+    if ([[responseDict valueForKey:@"active_user"] isEqualToString:@"0"])
+    {
+        if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userType"] isEqualToString:@"S"])
+        {
+           // [[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+            //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+        }
+        else if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"userType"]isEqualToString:@"E"])
+        {
+           // [[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+           // [[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+        }
+        
+        [[NSUserDefaults standardUserDefaults]synchronize];
+        [self.tabBarController dismissViewControllerAnimated:YES completion:nil];
+    }
+    if ([methodNameIs isEqualToString:@"getJob"])
+    {
+        if ([[responseDict valueForKey:@"success"] boolValue]==1)
+        {
+            //
+            NSLog(@"%@,%@,%@,%@",arrStrContract,arrSelectedEducations,arrStrFullTime,arrStrExperience);
+        
+            if ([[[responseDict valueForKey:@"data"] valueForKey:@"allJobs"] count]>0)
+            {
+                [[GetJobModel getModel]setResponseDict:[[responseDict valueForKey:@"data"] valueForKey:@"allJobs"]];
+                [self.delegate applyFilter:YES andMessage:@""];
+                [self.navigationController popViewControllerAnimated:YES];
+            }
+            else
+            {
+                [[GetJobModel getModel]setResponseDict:[[responseDict valueForKey:@"data"] valueForKey:@"allJobs"]];
+                [self.delegate applyFilter:YES andMessage:[responseDict valueForKey:@"msg"]];
+                //[Alerter.sharedInstance showErrorWithMsg:@"No Job Found"];
+                //[SharedClass showToast:self toastMsg:@"No Job Found"];
+                [self.navigationController popViewControllerAnimated:YES];
+            }
+            
+        }
+        else
+        {
+            [Alerter.sharedInstance showErrorWithMsg:[responseDict valueForKey:@"msg"]];
+            //[SharedClass showToast:self toastMsg:[responseDict valueForKey:@"msg"]];
+        }
+    }
+    else if ([methodNameIs isEqualToString:@"jobSearchDropDowns"])
+    {
+        if ([[responseDict valueForKey:@"success"] boolValue]==1)
+        {
+           
+            for (NSDictionary *dict in [responseDict valueForKey:@"contractTypes"]) {
+                
+               JobSearchFilter *obj = [[JobSearchFilter alloc]init];
+               [arrContract addObject:[obj initWithDictContract:dict type:@"contract"]];
+            }
+            
+            for (NSDictionary *dict in [responseDict valueForKey:@"educationLevels"]) {
+                
+                JobSearchFilter *obj = [[JobSearchFilter alloc]init];
+                [arrEducation addObject:[obj initWithDictContract:dict type:@"education"]];
+            }
+            for (NSDictionary *dict in [responseDict valueForKey:@"experiences"]) {
+                
+                JobSearchFilter *obj = [[JobSearchFilter alloc]init];
+                [arrExperience addObject:[obj initWithDictContract:dict type:@"experience"]];
+            }
+            for (NSDictionary *dict in [responseDict valueForKey:@"numberOfHours"]) {
+                
+                JobSearchFilter *obj = [[JobSearchFilter alloc]init];
+                [arrHours addObject:[obj initWithDictContract:dict type:@"hours"]];
+            }
+            
+            
+    }
+    }
+}
+
+-(void)inProgress:(float)value
+{
+    
+}
+
+
+#pragma mark - ----------Tableview Delegates & Datasources-----------
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    if (currentItem == 1) {
+        return  [arrContract count];
+    }
+    else if (currentItem == 2)
+    {
+         return [arrEducation count];
+    }
+    else if (currentItem == 3)
+    {
+       return [arrHours count];
+    }
+    else if (currentItem == 4)
+    {
+         return [arrExperience count];
+    }
+    return  0;
+   
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    FilterPopupCell *cell=(FilterPopupCell*)[tableView dequeueReusableCellWithIdentifier:@"FilterPopupCell"];
+    if (!cell)
+    {
+        cell=[[FilterPopupCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"FilterPopupCell"];
+    }
+    
+    [cell.btnRadio addTarget:self action:@selector(btnRadioTapped:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.btnRadio setTag:indexPath.row];
+    
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    if (currentItem==1)
+    {
+        JobSearchFilter * obj = arrContract[indexPath.row];
+         cell.lblItemName.text=obj.contract_title;
+        
+        if ([arrStrContract containsObject:obj.contract_title])
+        {
+            [cell.btnRadio setSelected:YES];
+        }
+        else
+        {
+            [cell.btnRadio setSelected:NO];
+        }
+        
+        
+    }
+    else if (currentItem==2)
+    {
+        JobSearchFilter * obj = arrEducation[indexPath.row];
+         cell.lblItemName.text=obj.education_title;
+       
+        if ([arrSelectedEducations containsObject:obj.education_title])
+        {
+            [cell.btnRadio setSelected:YES];
+        }
+        else
+        {
+            [cell.btnRadio setSelected:NO];
+        }
+    }
+    else if (currentItem==3)
+    {
+        JobSearchFilter * obj = arrHours[indexPath.row];
+        cell.lblItemName.text=obj.hours_title;
+        
+        if ([arrStrFullTime containsObject:obj.hours_title])
+        {
+            [cell.btnRadio setSelected:YES];
+        }
+        else
+        {
+            [cell.btnRadio setSelected:NO];
+        }
+    }
+    else if (currentItem==4)
+    {
+        JobSearchFilter * obj = arrExperience[indexPath.row];
+        cell.lblItemName.text=obj.experience_title;
+        
+        if ([arrStrExperience containsObject:obj.experience_title])
+        {
+            [cell.btnRadio setSelected:YES];
+        }
+        else
+        {
+            [cell.btnRadio setSelected:NO];
+        }
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString * select_Id;
+    if (currentItem==1)
+    {
+        JobSearchFilter * obj = [arrContract objectAtIndex:indexPath.row];
+        
+        select_Id = obj.contract_id;
+        strContract = obj.contract_title;
+        
+        if ([arrSelContract containsObject:select_Id])
+        {
+            [arrSelContract removeObject:select_Id];
+            [arrStrContract removeObject:strContract];
+        }
+        else
+        {
+            [arrSelContract addObject:select_Id];
+            [arrStrContract addObject:strContract];
+        }
+        
+    }
+    else if (currentItem==2)
+    {
+         JobSearchFilter * obj = [arrEducation objectAtIndex:indexPath.row];
+         select_Id = obj.education_id;
+         strLevelOfEducation = obj.education_title;
+        
+        if ([arrSelEducation containsObject:select_Id])
+        {
+            [arrSelEducation removeObject:select_Id];
+            [arrSelectedEducations removeObject:strLevelOfEducation];
+        }
+        else
+        {
+            [arrSelEducation addObject:select_Id];
+            [arrSelectedEducations addObject:strLevelOfEducation];
+        }
+    }
+    else if (currentItem==3)
+    {
+        JobSearchFilter * obj = [arrHours objectAtIndex:indexPath.row];
+        select_Id = obj.hours_id;
+        strFullTime = obj.hours_title;
+        if ([arrSelHours containsObject:select_Id])
+        {
+            [arrSelHours removeObject:select_Id];
+            [arrStrFullTime removeObject:strFullTime];
+        }
+        else
+        {
+            [arrSelHours addObject:select_Id];
+            [arrStrFullTime addObject:strFullTime];
+        }
+    }
+    else if (currentItem==4)
+    {
+        JobSearchFilter * obj = [arrExperience objectAtIndex:indexPath.row];
+        select_Id=obj.experience_id;
+        strExperience = obj.experience_title;
+        
+        if ([arrSelExperience containsObject:select_Id])
+        {
+            [arrSelExperience removeObject:select_Id];
+            [arrStrExperience removeObject:strExperience];
+        }
+        else
+        {
+            [arrSelExperience addObject:select_Id];
+            [arrStrExperience addObject:strExperience];
+        }
+    }
+    else
+    {
+        // Not tapped
+    }
+    
+    [_tblPopup reloadData];
+    if (currentItem==2)
+    {
+        
+    }
+    else
+    {
+//        [SharedClass hidePopupView:_viewBackground andTabbar:self.tabBarController];
+//        [SharedClass hidePopupView:_viewPopup];
+    }
+    [self setData];
+    
+    
+    
+}
+//-(UIView*)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+//{
+//    return viewFooter;
+//}
+
+-(void)btnRadioTapped:(UIButton *)btn
+{
+    int indexPath=(int)btn.tag;
+    
+    NSString * select_Id;
+    if (currentItem==1)
+    {
+        JobSearchFilter * obj = [arrContract objectAtIndex:indexPath];
+        
+        select_Id = obj.contract_id;
+        strContract = obj.contract_title;
+        
+        if ([arrSelContract containsObject:select_Id])
+        {
+            [arrSelContract removeObject:select_Id];
+            [arrStrContract removeObject:strContract];
+        }
+        else
+        {
+            [arrSelContract addObject:select_Id];
+            [arrStrContract addObject:strContract];
+        }
+        
+    }
+    else if (currentItem==2)
+    {
+        JobSearchFilter * obj = [arrEducation objectAtIndex:indexPath];
+        select_Id = obj.education_id;
+        strLevelOfEducation = obj.education_title;
+        
+        if ([arrSelEducation containsObject:select_Id])
+        {
+            [arrSelEducation removeObject:select_Id];
+            [arrSelectedEducations removeObject:strLevelOfEducation];
+        }
+        else
+        {
+            [arrSelEducation addObject:select_Id];
+            [arrSelectedEducations addObject:strLevelOfEducation];
+        }
+    }
+    else if (currentItem==3)
+    {
+        JobSearchFilter * obj = [arrHours objectAtIndex:indexPath];
+        select_Id = obj.hours_id;
+        strFullTime = obj.hours_title;
+        if ([arrSelHours containsObject:select_Id])
+        {
+            [arrSelHours removeObject:select_Id];
+            [arrStrFullTime removeObject:strFullTime];
+        }
+        else
+        {
+            [arrSelHours addObject:select_Id];
+            [arrStrFullTime addObject:strFullTime];
+        }
+    }
+    else if (currentItem==4)
+    {
+        JobSearchFilter * obj = [arrExperience objectAtIndex:indexPath];
+        select_Id=obj.experience_id;
+        strExperience = obj.experience_title;
+        
+        if ([arrSelExperience containsObject:select_Id])
+        {
+            [arrSelExperience removeObject:select_Id];
+            [arrStrExperience removeObject:strExperience];
+        }
+        else
+        {
+            [arrSelExperience addObject:select_Id];
+            [arrStrExperience addObject:strExperience];
+        }
+    }
+    else
+    {
+        // Not tapped
+    }
+    [self setData];
+  [_tblPopup reloadData];
+}
+
+
+
+
+@end

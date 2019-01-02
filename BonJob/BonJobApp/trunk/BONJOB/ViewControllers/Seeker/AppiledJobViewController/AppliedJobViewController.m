@@ -1,0 +1,77 @@
+//
+//  AppliedJobViewController.m
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 6/13/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import "AppliedJobViewController.h"
+
+@interface AppliedJobViewController ()
+
+@end
+
+@implementation AppliedJobViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [[self navigationController] setNavigationBarHidden:YES animated:YES];
+    self.viewPopup.layer.cornerRadius=15;
+    //self.viewPopup.layer.masksToBounds=YES;
+    [SharedClass setBorderOnButton:self.btnGotoProfile];
+    [SharedClass setBorderOnButton:self.btnContinueSearch];
+    [self.viewPopup.layer setBorderColor:[UIColor lightGrayColor].CGColor];
+    [self.viewPopup.layer setBorderWidth:0.3f];
+    self.btnGotoProfile.backgroundColor=TitleColor;
+    self.btnContinueSearch.backgroundColor=InternalButtonColor;
+    // drop shadow
+//    [self.viewPopup.layer setShadowColor:[UIColor blackColor].CGColor];
+//    [self.viewPopup.layer setShadowOpacity:0.8];
+//    [self.viewPopup.layer setShadowRadius:3.0];
+//    [self.viewPopup.layer setShadowOffset:CGSizeMake(2.0, 2.0)];
+    
+    _lblApplicationSent.text=NSLocalizedString(@"Your application is sent!", @"");
+    _lblMessage.text=NSLocalizedString(@"The company has 48 hours to respond before your application expires.", @"");
+    _lblGoodluck.text=NSLocalizedString(@"Good luck and thank you for using", @"");
+    [_btnContinueSearch setTitle:NSLocalizedString(@"Continue my search", @"") forState:UIControlStateNormal];
+    [_btnGotoProfile setTitle:NSLocalizedString(@"Go to my profile", @"") forState:UIControlStateNormal];
+    // Do any additional setup after loading the view.
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[self navigationController] setNavigationBarHidden:NO animated:YES];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+- (IBAction)btnContinueSearchAction:(id)sender
+{
+    [self.delegate viewDismissedReLoad];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)btnGotoProfileAction:(id)sender
+{
+    [self.delegate viewDismissedReLoad];
+    [self.delegate viewDismissed];
+    [self.tabBarController setSelectedIndex:4];
+    
+    [self.tabBarController.selectedViewController viewWillAppear:YES];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+@end

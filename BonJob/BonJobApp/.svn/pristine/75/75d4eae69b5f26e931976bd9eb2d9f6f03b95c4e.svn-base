@@ -1,0 +1,241 @@
+//
+//  JobOfferedViewController.m
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 7/18/17.
+//  Copyright © 2017 Infoicon. All rights reserved.
+//
+
+#import "JobOfferedViewController.h"
+#import "BonJob-Swift.h"
+
+@implementation JobOfferdCell
+
+
+
+@end
+
+@interface JobOfferedViewController ()
+{
+    int selectedIndex;
+    NSString *selectedJobtType;
+    BOOL isFiltered;
+    NSMutableArray *arrayJobTitles;
+    NSArray *arrayFilterJobTitles;
+}
+@end
+
+@implementation JobOfferedViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    
+    arrayJobTitles = [[NSMutableArray alloc]init];
+    arrayFilterJobTitles = [[NSArray alloc]init];
+    [self getJobTitles];
+    
+    selectedIndex=-1;
+    _viewTxtHolder.layer.borderColor=[UIColor lightGrayColor].CGColor;
+    _viewTxtHolder.layer.borderWidth=1.0;
+    _viewTxtHolder.layer.cornerRadius=18;
+    _txtSearch.delegate=self;
+    _tblJobOffered.delegate=self;
+    _tblJobOffered.dataSource=self;
+    [self.navigationController.navigationBar setTitleTextAttributes:
+     @{NSForegroundColorAttributeName:TitleColor}];
+    self.navigationController.navigationBar.tintColor = ButtonTitleColor;
+    //self.title=NSLocalizedString(@"Job Type", @"");
+    self.title=[SharedClass capitalizeFirstLetterOnlyOfString:NSLocalizedString(@"Job Type", @"")];
+    _txtSearch.placeholder=NSLocalizedString(@"Job Type", @"");
+    [_tblJobOffered reloadData];
+    
+    // Do any additional setup after loading the view.
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+   // [self.delegate selectedJobOffer:<#(NSString *)#> jobId:<#(NSString *)#>
+}
+
+#pragma mark - ------------TableView Delegates----------
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    int rowCount;
+    if(isFiltered)
+        rowCount = (int)arrayFilterJobTitles.count;
+    else
+        rowCount = (int)arrayJobTitles.count;
+    
+    return rowCount;
+    
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    JobOfferdCell *cell=[tableView dequeueReusableCellWithIdentifier:@"JobOfferdCell"];
+    if (!cell)
+    {
+        cell=[[JobOfferdCell alloc]initWithStyle:UITableViewCellStyleDefault  reuseIdentifier:@"JobOfferdCell"];
+    }
+    if(isFiltered)
+    {
+          JobTitleModel *obj = [arrayFilterJobTitles objectAtIndex:indexPath.row];
+          cell.lblJobOffered.text = obj.job_title;
+    }
+    else
+    {
+        JobTitleModel *obj = [arrayJobTitles objectAtIndex:indexPath.row];
+        cell.lblJobOffered.text = obj.job_title;
+    }
+    
+    [cell.btnRadioSelect setTag:indexPath.row];
+    if (selectedIndex==indexPath.row)
+    {
+        [cell.btnRadioSelect setSelected:YES];
+    }
+    else
+    {
+        [cell.btnRadioSelect setSelected:NO];
+    }
+    
+    [cell.btnRadioSelect addTarget:self action:@selector(btnRadioAction:) forControlEvents:UIControlEventTouchUpInside];
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(isFiltered)
+    {
+        JobTitleModel * obj = [arrayFilterJobTitles objectAtIndex:indexPath.row];
+//        selectedJobtType=[filteredTableData objectAtIndex:indexPath.row];
+        selectedIndex=(int)indexPath.row;
+        [_tblJobOffered reloadData];
+        [self.delegate selectedJobOffer:obj.job_title jobId:obj.job_title_id];
+    }
+    else
+    {
+          JobTitleModel * obj = [arrayJobTitles objectAtIndex:indexPath.row];
+      //  selectedJobtType=[arrJobOfferd objectAtIndex:indexPath.row];
+        selectedIndex=(int)indexPath.row;
+        [_tblJobOffered reloadData];
+        [self.delegate selectedJobOffer:obj.job_title jobId:obj.job_title_id];
+    }
+    
+  //  [self.delegate selectedJobOffer:selectedJobtType];
+    [self.navigationController popViewControllerAnimated:YES];
+    
+}
+
+-(void)btnRadioAction:(UIButton *)btn
+{
+    if(isFiltered)
+    {
+       JobTitleModel * obj = [arrayFilterJobTitles objectAtIndex:btn.tag];
+        selectedIndex=(int)btn.tag;
+        [_tblJobOffered reloadData];
+        [self.delegate selectedJobOffer:obj.job_title jobId:obj.job_title_id];
+    }
+    else
+    {
+      JobTitleModel * obj = [arrayJobTitles objectAtIndex:btn.tag];
+        selectedIndex=(int)btn.tag;
+        [_tblJobOffered reloadData];
+        [self.delegate selectedJobOffer:obj.job_title jobId:obj.job_title_id];
+    }
+    //[self.delegate selectedJobOffer:selectedJobtType];
+    [self.navigationController popViewControllerAnimated:YES];
+
+}
+
+#pragma mark - ------WebService Methods-----
+
+-(void)getJobTitles
+{
+    WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+    webhelper.delegate=self;
+    webhelper.methodName=@"postionDropDowns";
+    [webhelper webserviceHelper:kGetjobTitles showHud:YES];
+    
+}
+
+-(void)processSuccessful:(NSDictionary *)responseDict methodName:(NSString *)methodNameIs
+{
+    if ([[responseDict valueForKey:@"active_user"] isEqualToString:@"0"])
+    {
+        if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userType"] isEqualToString:@"S"])
+        {
+            //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+            //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+        }
+        else if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"userType"]isEqualToString:@"E"])
+        {
+            //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+            //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+        }
+        
+        [[NSUserDefaults standardUserDefaults]synchronize];
+        [self.tabBarController dismissViewControllerAnimated:YES completion:nil];
+    }
+
+    else if ([methodNameIs isEqualToString:@"postionDropDowns"])
+    {
+        if ([[responseDict valueForKey:@"success"] boolValue]==1)
+        {
+            
+            for (NSDictionary *dict in [responseDict valueForKey:@"jobTitles"]) {
+                
+                JobTitleModel *obj = [[JobTitleModel alloc]init];
+                [arrayJobTitles addObject:[obj initWithDict:dict]];
+            }
+            [_tblJobOffered reloadData];
+        }
+    }
+}
+
+#pragma mark - ----------Textfield Delegates-------
+
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    if(textField.text.length == 0)
+    {
+        isFiltered = FALSE;
+    }
+    else
+    {
+        
+        isFiltered = true;
+        arrayFilterJobTitles = [[NSArray alloc]init];
+         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"SELF.job_title contains[c] %@",textField.text];
+        arrayFilterJobTitles = [arrayJobTitles filteredArrayUsingPredicate:predicate];
+    
+    }
+    
+    [_tblJobOffered reloadData];
+    return TRUE;
+}
+- (BOOL)textFieldShouldClear:(UITextField *)textField
+{
+     isFiltered = FALSE;
+     [_tblJobOffered reloadData];
+    return TRUE;
+}
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    [textField resignFirstResponder];
+    return TRUE;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+
+@end

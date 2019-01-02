@@ -1,0 +1,31 @@
+//
+//  AppDelegate.h
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 7/15/17.
+//  Copyright © 2017 Infoicon. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "XMPPManager.h"
+#import <UserNotifications/UserNotifications.h>
+#import <CoreLocation/CoreLocation.h>
+#import <UserNotifications/UserNotifications.h>
+@interface AppDelegate : UIResponder <UIApplicationDelegate,CLLocationManagerDelegate,UNUserNotificationCenterDelegate,UIAlertViewDelegate>
+{
+    CLLocation *currLocation;
+    
+}
+@property(nonatomic) BOOL isNeedLoad;
+@property(nonatomic,strong)NSString *userAddress;
+@property(nonatomic,assign)double latitude;
+@property(nonatomic,assign)double longitude;
+@property(nonatomic,strong)CLLocationManager *locationManager;
+@property (strong, nonatomic) UIWindow *window;
+@property(strong,nonatomic) XMPPManager *xmppManager;
+@property(strong,nonatomic)NSMutableArray *arrOnlineBuddies;
+@property(strong,nonatomic)NSDictionary *currentPlanDict;
+@property(strong,nonatomic)NSMutableArray *arrPlanData;
++(void)changeRoot;
+@end
+

@@ -1,0 +1,182 @@
+/* 
+  Localizable.strings
+  BONJOB
+
+  Created by VISHAL-SETH on 6/17/17.
+  Copyright © 2017 Infoicon Technologies. All rights reserved.
+*/
+"SEARCH"    = "SEARCH";
+"MY OFFERS" = "MY OFFERS";
+"CHAT"      = "CHAT";
+"ACTIVITY"  = "ACTIVITY";
+"PROFILE"   = "PROFILE";
+"POST"      = "POST";
+
+// FIRST MAIN SCREEN
+"MOBILE EMPLOYMENT SOLUTION FOR THE HOSPITALITY INDUSTRY" = "MOBILE EMPLOYMENT SOLUTION FOR THE HOSPITALITY INDUSTRY";
+
+"FIND A JOB"            = "FIND A JOB";
+"RECRUIT A CANDIDATE"   = "RECRUIT A CANDIDATE";
+// LOGIN SCREEN
+"Connect with Facebook" = "Connect with Facebook";
+"Sign Up"               = "Sign Up";
+"Login"                 =   "Login";
+"I have read and agree to the terms of use" =   "I have read and agree to the terms of use";
+
+"Find a job in the hospitality industry" = "Find a job in the hospitality industry";
+//REGISTRATION SCREEN
+"Login to your Facebook account to connect to BonJob"  =   "Login to your Facebook account to connect to BonJob";
+"Sign Up"               =   "Sign Up";
+"Login" = "Login";
+"E-mail"                =   "E-mail";
+"Password"              =   "Password";
+"Forgot your password"  =   "Forgot your password";
+"+ PHOTO"               =   "+ PHOTO";
+"+ VIDEO PITCH"         =   "+ VIDEO PITCH";
+"First name"            =   "First name";
+"Name"                  =   "Name";
+"E-mail"                =   "E-mail";
+"Password"              =   "Password";
+
+// HOME VIEW CONTROLLER
+"Welcome"   =   "Welcome";
+"BonJob is a free mobile service to connect with recruiters"  =   "BonJob is a free mobile service to connect with recruiters";
+"To optimize your chances:" =   "To optimize your chances:";
+"Add a Photo"               =   "Add a Photo";
+"Indicate your Experience"  =   "Indicate your Experience";
+"Record a Video Pitch"      =   "Record a Video Pitch";
+"Edit my profile"           =   "Edit my profile";
+"Search jobs"               =   "Search jobs";
+"My profile"                =   "My profile";
+"Location"                  =   "Location";
+"LOCATION"                  =   "LOCATION";
+//MY PROFILE
+"My profile"                =   "My profile";
+"Location"                  =   "Location";
+"Professional experience"   =   "Professional experience";
+"Training"                  =   "Training";
+"Languages"                 =   "Languages";
+"About"                     =   "About";
+"Status"                    =   "Status";
+"Mobility"                  =   "Mobility";
+"Edit my profile"           =   "Edit my profile";
+
+//EDIT PROFILE
+"EDIT PROFILE"          =   "EDIT PROFILE";
+"FIRST NAME"            =   "FIRST NAME";
+"NAME"                  =   "NAME";
+"DATE OF BIRTH"         =   "DATE OF BIRTH";
+"CITY"                  =   "CITY";
+"PHOTO"                 =   "PHOTO";
+"VIDEO PITCH"           =   "VIDEO PITCH";
+"EXPERIENCE"            =   "EXPERIENCE";
+"Save"                  =   "Save";
+"LEVEL OF EDUCATION"    =   "LEVEL OF EDUCATION";
+"Select"                =   "Select";
+"SPECIFY YOUR TRAINING" =   "SPECIFY YOUR TRAINING";
+"ABOUT"                 =   "ABOUT";
+"LANGUAGES"             =   "LANGUAGES";
+"Beginner"              =   "Beginner";
+"Intermediate"          =   "Intermediate";
+"Advanced"              =   "Advanced";
+"Fluent"                =   "Fluent";
+"+ Add language"        =   "+ Add language";
+"STATUS"                =   "STATUS";
+"Student"               =   "Student";
+"Apprentice"            =   "Apprentice";
+"Employed"              =   "Employed";
+"Jobseeker"             =   "Jobseeker";
+"Inactive"              =   "Inactive";
+"MOBILITY"              =   "MOBILITY";
+"Yes"                   =   "Yes";
+"No"                    =   "No";
+"MOBILITY"              =   "MOBILITY";
+"GALLERY"               =   "GALLERY";
+"+ Photo"               =   "+ Photo";
+"Add a description ?"   =   "Add a description ?";
+"x Delete photo"        =   "x Delete photo";
+
+// FOR EXPERIENCE
+"Area of activity"      =   "Area of activity";
+"Catering"              =   "Catering";
+"Service"               =   "Service";
+"Hotel"                 =   "Hotel";
+"Position"              =   "Position";
+"Experience"            =   "Experience";
+"Indicate your experience"  =   "Indicate your experience";
+"POSITION HELD"         =   "POSITION HELD";
+"COMPANY NAME"          =   "COMPANY NAME";
+"DESCRIPTION"           =   "DESCRIPTION";
+"+ Add experience"      =   "+ Add experience";
+"X Delete"              =   "X Delete";
+"None"                  =   "None";
+"< 1 year"              =   "< 1 year";
+"1-2 years"             =   "1-2 years";
+"3-4 years"             =   "3-4 years";
+"5 years+"              =   "5 years+";
+"Indicate your birth date"  =   "Indicate your birth date";
+
+// Settings
+"Settings"              =   "Settings";
+"Receive notifications" =   "Receive notifications";
+"Receive emails"        =   "Receive emails";
+"Give my opinion"       =   "Give my opinion";
+"Terms of Use"          =   "Terms of Use";
+"FAQ"                   =   "FAQ";
+"Terms of Use"          =   "Terms of Use";
+"Privacy Policy"        =   "Privacy Policy";
+"Cancel"                =   "Cancel";
+"Choose from gallery"   =   "Choose from gallery";
+"Take a picture"        =   "Take a picture";
+"Take a video"          =   "Take a video";
+"Sign Out"              =   "Sign Out";
+
+//JOB SEARCH SCREEN
+"Keyword (eg waiter, cook, ...)"    =   "Keyword (eg waiter, cook, ...)";
+"Edit"                  =   "Edit";
+"More information"      =   "More information";
+"Apply"                 =   "Apply";
+
+//FILTERS
+"Filters"               =   "Filters";
+"+ Filters"             =   "+ Filters";
+"Search"                =   "Search";
+
+// MORE FILTERS
+"Type of contract"      =   "Type of contract";
+"Level of education"    =   "Level of education";
+"Full / Part time"      =   "Full / Part time";
+"Experience"            =   "Experience";
+"Search"                =   "Search";
+//APPLY FOR JOB
+"Your application is sent!" =   "Your application is sent!";
+"The company has 24 hours to respond before your application expires."               =   "The company has 24 hours to respond before your application expires.";
+"Good luck and thank you for using"     =       "Good luck and thank you for using";
+
+"Continue my search"    =   "Continue my search";
+"Go to my profile"      =   "Go to my profile";
+
+//MORE INFORMATION
+"COMPANY'S ACTIVITY"    =   "COMPANY'S ACTIVITY";
+"Your application is active for 24h. You will receive an answer by staying connected to your account."  =   "Your application is active for 24h. You will receive an answer by staying connected to your account.";
+"LOCATION OF THE COMPANY"   =   "LOCATION OF THE COMPANY";
+"COMPANY'S WEBSITE"         =   "COMPANY'S WEBSITE";
+"SHARE THIS OFFER"          =   "SHARE THIS OFFER";
+"REPORT INAPPROPRIATE CONTENT"  =   "REPORT INAPPROPRIATE CONTENT";
+
+//JOB DETAILS
+"Restaurant"          =   "Restaurant";
+"About"               =   "About";
+"Active"                = "Active";
+"Account owner"       =     "Account owner";
+"Location of the company"  =   "Location of the company";
+"Company's website"     =   "Company's website";
+"Job offers"        =   "Job offers";
+"Video"             =   "Video";
+
+// RECRUITER
+"Publish your job offer and find the right candidate in seconds" = "Publish your job offer and find the right candidate in seconds";
+"" = "";
+
+
+

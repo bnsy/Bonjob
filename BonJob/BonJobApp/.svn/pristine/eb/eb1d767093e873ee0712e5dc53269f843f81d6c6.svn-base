@@ -1,0 +1,182 @@
+/* 
+  Localizable.strings
+  BONJOB
+
+  Created by VISHAL-SETH on 6/17/17.
+  Copyright © 2017 Infoicon Technologies. All rights reserved.
+*/
+// ALL TAB BAR MENU
+
+"SEARCH" = "CHERCHER";
+"MY OFFERS" = "MES OFFRES";
+"CHAT" = "CHAT";
+"ACTIVITY" = "ACTIVITÉ";
+"PROFILE" = "PROFIL";
+"POST"      = "PUBLIER";
+
+// FIRST MAIN SCREEN
+"MOBILE EMPLOYMENT SOLUTION FOR THE HOSPITALITY INDUSTRY" = "LA SOLUTION EMPLOI ET MOBILITÉ DE L'HÔTELLERIE RESTAURATION";
+
+"FIND A JOB" = "TROUVER UN EMPLOI";
+"RECRUIT A CANDIDATE" = "RECRUTER UN CANDIDAT";
+//LOGIN SCREEN
+"Connect with Facebook" = "Connexion via Facebook";
+"Sign Up" = "Inscription";
+"Login" =   "Connexion";
+"Forgot your password"  =   "Mot de passe oublié";
+"I have read and agree to the terms of use" =   "J'ai lu et j'accepte les conditions d'utilisation";
+
+"Find a job in the hospitality industry" = "Trouvez un emploi dans l'hôtellerie-restauration";
+
+//REGISTRATION SCREEN
+"Login to your Facebook account to connect to BonJob"  =   "Connectez-vous à votre compte Facebook pour vous connecter à BonJob";
+"Sign Up"               =   "Inscription";
+"Login"                 = "Connexion";
+"E-mail"                =   "Email";
+"Password"              =   "Mot de passe";
+"Forgot your password"  =   "Mot de passe oublié";
+"+ PHOTO"               = "+ PHOTO";
+"+ VIDEO PITCH"         =   "+ PITCH VIDÉO";
+"First name"            =   "Prénom";
+"Name"                  =   "Nom";
+"E-mail"                =   "Email";
+"Password"              =   "Mot de passe";
+
+// HOME VIEW CONTROLLER
+"Welcome"                   =   "Bienvenue";
+"BonJob is a free mobile service to connect with recruiters"  =   "BonJob est un outil gratuit pour vous connecter avec les recruteurs";
+"To optimize your chances:" =   "Pour optimiser vos chances :";
+"Add a Photo"               =   "Ajoutez une Photo";
+"Indicate your Experience"  =   "Indiquez votre Expérience";
+"Record a Video Pitch"      =   "Enregistrez un Pitch vidéo";
+"Edit my profile"           =   "Modifier mon profil";
+"Search jobs"               =   "Chercher un emploi";
+"My profile"                =   "Mon Profil";
+"Location"                  =   "Localisation";
+
+//MY PROFILE
+"My profile"                =   "Mon Profil";
+"Location"                  =   "Localisation";
+"Professional experience"   =   "Expérience professionnelle";
+"Training"                  =   "Formation";
+"Languages"                 =   "Langues";
+"About"                     =   "A propos";
+"Status"                    =   "Statut actuel";
+"Mobility"                  =   "Mobilité";
+"Edit my profile"           =   "Modifier mon profil";
+"LOCATION"                  =   "LOCALISATION";
+//EDIT PROFILE
+"EDIT PROFILE"          =   "MODIFIER MON PROFIL";
+"FIRST NAME"            =   "PRÉNOM";
+"NAME"                  =   "NOM";
+"DATE OF BIRTH"         =   "NÉ(E) LE";
+"CITY"                  =   "VILLE";
+"PHOTO"                 =   "PHOTO";
+"VIDEO PITCH"           =   "PITCH VIDÉO";
+"EXPERIENCE"            =   "EXPÉRIENCE";
+"Save"                  =   "Enregistrer";
+"LEVEL OF EDUCATION"    =   "NIVEAU DE FORMATION";
+"Select"                =   "Sélectionner";
+"SPECIFY YOUR TRAINING" =   "SPÉCIFIER VOTRE FORMATION";
+"ABOUT"                 =   "À PROPOS";
+"LANGUAGES"             =   "LANGUES";
+"Beginner"              =   "Débutant";
+"Intermediate"          =   "Intermédiaire";
+"Advanced"              =   "Avancé";
+"Fluent"                =   "Courant";
+"+ Add language"        =   "+ Ajouter";
+"STATUS"                =   "STATUT ACTUEL";
+"Student"               =   "Étudiant";
+"Apprentice"            =   "Apprenti";
+"Employed"              =   "Actif";
+"Jobseeker"             =   "Demandeur d'emploi";
+"Inactive"              =   "Inactif";
+"MOBILITY"              =   "MOBILITÉ";
+"Yes"                   =   "Oui";
+"No"                    =   "Non";
+"MOBILITY"              =   "MOBILITÉ";
+"GALLERY"               =   "GALERIE";
+"+ Photo"               =   "+ Photo";
+"Add a description ?"   =   "Ajouter une description ?";
+"x Delete photo"        =   "x Supprimer la photo";
+
+// FOR EXPERIENCE
+"Area of activity"      =   "Secteur d'activité";
+"Catering"              =   "Cuisine - Restauration";
+"Service"               =   "Salle - Service";
+"Hotel"                 =   "Hôtellerie - Hébergement";
+"Position"              =   "Poste occupé";
+"Experience"            =   "Expérience";
+"Indicate your experience"  =   "Indiquez votre expérience";
+"POSITION HELD"         =   "POSTE OCCUPÉ";
+"COMPANY NAME"          =   "NOM DE L'ENTREPRISE";
+"DESCRIPTION"           =   "DESCRIPTION";
+"+ Add experience"      =   "+ Ajouter";
+"X Delete"              =   "x Supprimer";
+"None"                  =   "Sans";
+"< 1 year"              =   "< 1 an";
+"1-2 years"             =   "1-2 ans";
+"3-4 years"             =   "3-4 ans";
+"5 years+"              =   "5 ans+";
+"Indicate your birth date"  =   "Indiquez votre date de naissance";
+
+// Settings
+"Settings"              =   "Paramètres";
+"Receive notifications" =   "Recevoir notifications";
+"Receive emails"        =   "Recevoir emails";
+"Give my opinion"       =   "Donner mon opinion";
+"Terms of Use"          =   "Termes légaux";
+"FAQ"                   =   "FAQ";
+"Terms of Use"          =   "Termes légaux";
+"Privacy Policy"        =   "Politique de confidentialité";
+"Cancel"                =   "Annuler";
+"Choose from gallery"   =   "Choisir dans la galerie";
+"Take a picture"        =   "Prendre une photo";
+"Take a video"          =   "Prendre une vidéo";
+"Sign Out"              =   "Déconnexion";
+
+//JOB SEARCH SCREEN
+"Keyword (eg waiter, cook, ...)"    =   "Mot clé (ex : serveur, cuisinier, …)";
+"Edit"                  =   "Modifier";
+"More information"      =   "+ d'information";
+"Apply"                 =   "Postuler";
+
+//FILTERS
+"Filters"               =   "Filtres";
+"+ Filters"             =   "+ Filtres";
+"Search"                =   "Rechercher";
+
+// MORE FILTERS
+"Type of contract"      =   "Type de contrat";
+"Level of education"    =   "Niveau de formation";
+"Full / Part time"      =   "Temps plein/partiel";
+"Experience"            =   "Expérience";
+"Search"                =   "Rechercher";
+
+//APPLY FOR JOB
+"Your application is sent!" =   "Votre candidature est envoyée !";
+"The company has 24 hours to respond before your application expires."               =   "L'entreprise dispose d'un délai de 24 heures pour vous répondre avant que votre candidature n'expire.";
+"Good luck and thank you for using"     =       "Bonne chance et merci d'utiliser";
+
+"Continue my search"    =   "Continuer ma recherche";
+"Go to my profile"      =   "Aller à mon profil";
+
+//,ORE INFORMATION
+"COMPANY'S ACTIVITY"    =   "ACTIVITÉ DE L'ENTREPRISE";
+"Your application is active for 24h. You will receive an answer by staying connected to your account."  =   "Votre candidature est active pour 24h. Vous recevrez une réponse en restant connecté à votre compte.";
+"LOCATION OF THE COMPANY"   =   "LOCALISATION DE L'ENTREPRISE";
+"COMPANY'S WEBSITE"         =   "SITE WEB DE L'ENTREPRISE";
+"SHARE THIS OFFER"          =   "PARTAGER CETTE OFFRE";
+"REPORT INAPPROPRIATE CONTENT"  =   "SIGNALER UN CONTENU INAPPROPRIÉ";
+
+//JOB DETAILS
+"Restaurant"          =   "Restaurant";
+"About"               =   "À propos";
+"Active"                = "Actif il y a";
+"Account owner"       =     "Titulaire du compte";
+"Location of the company"  =   "Localisation de l'entreprise";
+"Company's website"     =   "Site web de l'entreprise";
+"Job offers"        =   "Offres de l'entreprise";
+"Video"             =   "Vidéo";
+
+

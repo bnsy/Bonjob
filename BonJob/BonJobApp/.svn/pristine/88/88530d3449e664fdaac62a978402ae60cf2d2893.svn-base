@@ -1,0 +1,751 @@
+//
+//  SearchCandidateViewController.m
+//  BONJOB
+//
+//  Created by VISHAL-SETH on 6/19/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#import "SearchCandidateViewController.h"
+#import "RecruiterVerifyViewController.h"
+#import "SearchCandidateCell.h"
+#import "RecruiterFilterCandidateVC.h"
+#import "RecruiterLookCandateProfileViewController.h"
+#import "GetCandidate.h"
+#import "IntroPopupViewController.h"
+#import "PaymentDataViewController.h"
+#import "PaymentDetailsViewController.h"
+#import "PaymentRejectViewController.h"
+#import "PaymentAcceptViewController.h"
+@interface SearchCandidateViewController ()<UITextFieldDelegate,appliedFilterProtocol,IntrroViewDelegate,PaymantPlanSelectedDelegate,PaymentSuccessDelegate,PaymentAcceptedDelegate,PaymentRejectedDelegate>
+{
+    NSMutableArray *arrResponse;
+    BOOL showProgressBar;
+    CLLocationCoordinate2D locationCoordinateCurrent;
+    CLLocationCoordinate2D locationCoordinateCandidate;
+    int pageNumber;
+    BOOL AlreadPubliishedCalled;
+    NSDictionary *dictPlanData;
+}
+
+@end
+
+@implementation SearchCandidateViewController
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    arrResponse=[[NSMutableArray alloc]init];
+    showProgressBar=NO;
+    pageNumber=0;
+    AlreadPubliishedCalled=NO;
+    _viewbackgroundoverview.hidden=YES;
+    _viewpopup.hidden=YES;
+    [self setup];
+    _viewbackgroundoverview.hidden=NO;
+    _viewpopup.hidden=NO;
+    _viewTextFieldHolder.layer.cornerRadius=20.0;
+    _viewTextFieldHolder.layer.borderWidth=1.5;
+    _viewTextFieldHolder.layer.borderColor=[UIColor lightGrayColor].CGColor;
+    [[self navigationController] setNavigationBarHidden:NO animated:YES];
+    [self getDefaultCandidate];
+    
+    if (![[[NSUserDefaults standardUserDefaults] valueForKey:@"prevLogined"] isEqualToString:@"1"])
+    {
+        [_viewbackgroundoverview setHidden:YES];
+        [_viewpopup setHidden:YES];
+        
+        [self.navigationController setNavigationBarHidden:NO animated:YES];
+    }
+    else
+    {
+        IntroPopupViewController *vc=[self.storyboard instantiateViewControllerWithIdentifier:@"IntroPopupViewController"];
+        vc.delegate=self;
+        [vc setModalPresentationStyle:UIModalPresentationOverFullScreen];
+        [vc setModalTransitionStyle: UIModalTransitionStyleCoverVertical];
+        [self presentViewController:vc animated:YES completion:nil];
+    }
+    
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setMyOfferCount:) name:@"setrecruiteroffercount" object:nil];
+    
+    //[[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(statusChanged:) name:@"statusChanged" object:nil];
+    
+   // [self loadDefaultView];
+    
+    // Do any additional setup after loading the view.
+    
+    _viewpopup.translatesAutoresizingMaskIntoConstraints=YES;
+    CGRect frame=_viewpopup.frame;
+    frame.size.height=_btnViewOnlineCandidate.frame.size.height+_btnViewOnlineCandidate.frame.origin.y+10;
+    frame.origin.x=20;
+    frame.size.width=self.view.frame.size.width-40;
+    _viewpopup.frame=frame;
+    
+    
+    //--------------------
+    /*let vc=self.storyboard?.instantiateViewController(withIdentifier: "RatingProductViewController")as!RatingProductViewController
+    vc.modalPresentationStyle = .overCurrentContext
+    vc.modalTransitionStyle = .coverVertical
+    vc.Product_id = ProductId
+    self.present(vc, animated: true, completion: nil)*/
+//    presentingController.providesPresentationContextTransitionStyle = YES;
+//    presentingController.definesPresentationContext = YES;
+//
+//    [presentingController setModalPresentationStyle:UIModalPresentationOverCurrentContext];
+    [self checkPlan];
+    
+    
+    
+}
+
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+//    [[NSNotificationCenter defaultCenter] postNotificationName:@"Close" object:nil];
+}
+
+//Callbacks from introview controller
+-(void)gotoMyProfile
+{
+    
+         [self.tabBarController setSelectedIndex:4];
+        //[self.tabBarController setSelectedIndex:3];
+        
+    
+   
+}
+
+-(void)gotoPostJob
+{
+    
+        
+        [self.tabBarController setSelectedIndex:3];
+        
+    
+    
+}
+
+-(void)searchCandidate
+{
+    
+}
+
+-(void)openPaymentDataScreen
+{
+    
+        //[self.tabBarController setSelectedIndex:3];
+    [self dismissViewControllerAnimated:false completion:^{
+        PaymentDataViewController *vc=[self.storyboard instantiateViewControllerWithIdentifier:@"PaymentDataViewController"];
+        vc.delegate=self;
+        [vc setModalPresentationStyle:UIModalPresentationOverFullScreen];
+        [vc setModalTransitionStyle: UIModalTransitionStyleCrossDissolve];
+        [self presentViewController:vc animated:YES completion:nil];
+    }];
+     
+        
+    
+    
+    
+}
+
+-(void)paymentPlanSelected:(long)index
+{
+    PaymentDetailsViewController *vc=[self.storyboard instantiateViewControllerWithIdentifier:@"PaymentDetailsViewController"];
+    vc.planDict=[APPDELEGATE.arrPlanData objectAtIndex:index];
+    vc.delegate=self;
+    [vc setModalPresentationStyle:UIModalPresentationOverFullScreen];
+    [vc setModalTransitionStyle: UIModalTransitionStyleCrossDissolve];
+    [self presentViewController:vc animated:YES completion:nil];
+}
+
+-(void)paymentDone:(BOOL)value
+{
+    if (!value)
+    {
+        PaymentRejectViewController *pvc=[self.storyboard instantiateViewControllerWithIdentifier:@"PaymentRejectViewController"];
+        pvc.delegate=self;
+        [pvc setModalPresentationStyle:UIModalPresentationOverFullScreen];
+        [pvc setModalTransitionStyle: UIModalTransitionStyleCrossDissolve];
+        [self presentViewController:pvc animated:YES completion:nil];
+    }
+    else
+    {
+        PaymentAcceptViewController *pvc=[self.storyboard instantiateViewControllerWithIdentifier:@"PaymentAcceptViewController"];
+        pvc.delegate=self;
+        [pvc setModalPresentationStyle:UIModalPresentationOverFullScreen];
+        [pvc setModalTransitionStyle: UIModalTransitionStyleCrossDissolve];
+        [self presentViewController:pvc animated:YES completion:nil];
+    }
+}
+
+-(void)openPaymentData
+{
+    PaymentDataViewController *vc=[self.storyboard instantiateViewControllerWithIdentifier:@"PaymentDataViewController"];
+    vc.delegate=self;
+    [vc setModalPresentationStyle:UIModalPresentationOverFullScreen];
+    [vc setModalTransitionStyle: UIModalTransitionStyleCrossDissolve];
+    [self presentViewController:vc animated:YES completion:nil];
+}
+
+-(void)paymentPopupClose
+{
+//    if ([[APPDELEGATE.currentPlanDict  valueForKey:@"expiredOn"] length]==0||[[APPDELEGATE.currentPlanDict  valueForKey:@"subscription_id"] length]==0)
+//    {
+//        if ([[APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"] intValue]>=1)
+//        {
+//            [self openPaymentData];
+//        }
+//    }
+}
+
+-(void)openSearchCandidateController
+{
+    
+}
+
+-(void)openEditProfile
+{
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+    [self.tabBarController setSelectedIndex:4];
+}
+
+-(void)openPostJobController
+{
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+    [self.tabBarController setSelectedIndex:3];
+}
+
+
+-(void)checkPlan
+{
+    NSMutableDictionary *params=[[NSMutableDictionary alloc]init];
+    WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+    webhelper.delegate=self;
+    webhelper.methodName=@"checkPlan";
+    [webhelper webserviceHelper:params webServiceUrl:kCheckPlan methodName:@"checkPlan" showHud:YES inWhichViewController:self];
+}
+
+-(void)statusChanged:(NSNotification *)notification
+{
+    NSDictionary *userDic=notification.userInfo;
+     AppDelegate  *appdel= ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
+    if ([[userDic valueForKey:@"status"] isEqualToString:@"available"])
+    {
+        if ([appdel.arrOnlineBuddies containsObject:[userDic valueForKey:@"username"]])
+        {
+            
+        }
+        else
+        {
+            [appdel.arrOnlineBuddies addObject:[userDic valueForKey:@"username"]];
+        }
+    }
+    else if([[userDic valueForKey:@"status"] isEqualToString:@"unavailable"])
+    {
+        if ([appdel.arrOnlineBuddies containsObject:[userDic valueForKey:@"username"]] && appdel.arrOnlineBuddies.count>0)
+        {
+            [appdel.arrOnlineBuddies removeObject:[userDic valueForKey:@"username"]];
+        }
+    }
+}
+
+
+-(void)setMyOfferCount:(id)sender
+{
+    if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"Recruteroffercount"] intValue]>0)
+    {
+        [[self.tabBarController.tabBar.items objectAtIndex:1]setBadgeValue:[[NSUserDefaults standardUserDefaults]valueForKey:@"Recruteroffercount"]];
+    }
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+//    if ([[APPDELEGATE.currentPlanDict valueForKey:@"expiredOn"] length]==0||[[APPDELEGATE.currentPlanDict valueForKey:@"subscription_id"] length]==0)
+//    {
+//        [self openPaymentData];
+//    }
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(switchToOffer:) name:@"switchtomyoffer" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(switchToMyProfile:) name:@"switchtomyprofile" object:nil];
+    [_tblCandidates reloadData];
+    
+    if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"Recruteroffercount"] intValue]>0)
+    {
+        [[self.tabBarController.tabBar.items objectAtIndex:1]setBadgeValue:[[NSUserDefaults standardUserDefaults]valueForKey:@"Recruteroffercount"]];
+    }
+    
+    NSLog(@"%@",[APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"]);
+    
+//    if ([[APPDELEGATE.currentPlanDict  valueForKey:@"expiredOn"] length]==0||[[APPDELEGATE.currentPlanDict  valueForKey:@"subscription_id"] length]==0)
+//    {
+//        if ([APPDELEGATE.currentPlanDict objectForKey:@"search_candidate_count"] != [NSNull null] && [APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"] != nil) {
+//            if ([[APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"] intValue]>=1)
+//            {
+//                [self openPaymentData];
+//            }
+//        }
+//
+//    }
+
+
+}
+-(void)switchToOffer:(id)sender
+{
+    [self.tabBarController setSelectedIndex:1];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"PostSuccessGotoMyOffer" object:nil];
+//    RecruiterTabarViewController *rtc=[self.storyboard instantiateViewControllerWithIdentifier:@"RecruiterTabarViewController"];
+//    
+//    [rtc.tabBar setSelectedItem: [rtc.tabBar.items objectAtIndex:1]];
+//    NSArray *ary = [self.tabBarController viewControllers];
+//    UIViewController *vc = ary[1];
+//    [self.tabBarController setSelectedIndex:1];
+    //[self.tabBarController setSelectedViewController:vc];
+    if (!AlreadPubliishedCalled)
+    {
+       AlreadPubliishedCalled =YES;
+       //[[self navigationController] setNavigationBarHidden:YES animated:YES];
+    }
+    
+    
+}
+-(void)switchToMyProfile:(id)sender
+{
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+    
+    [self.tabBarController setSelectedIndex:4];
+    //    RecruiterTabarViewController *rtc=[self.storyboard instantiateViewControllerWithIdentifier:@"RecruiterTabarViewController"];
+    //
+    //    [rtc.tabBar setSelectedItem: [rtc.tabBar.items objectAtIndex:1]];
+    //    NSArray *ary = [self.tabBarController viewControllers];
+    //    UIViewController *vc = ary[1];
+    //    [self.tabBarController setSelectedIndex:1];
+    //[self.tabBarController setSelectedViewController:vc];
+    
+    [[self navigationController] setNavigationBarHidden:NO animated:YES];
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+}
+
+-(void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
+    AlreadPubliishedCalled=NO;
+}
+
+- (void)didReceiveMemoryWarning
+{
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+-(void)setup
+{
+    _viewpopup.layer.cornerRadius=15.0;
+    [SharedClass setBorderOnButton:self.btnPostJob];
+    _btnEditProfile.layer.cornerRadius=25;
+    _btnPostJob.layer.cornerRadius=23;
+    _btnEditProfile.layer.borderWidth=1.5;
+    _btnEditProfile.layer.borderColor=InternalButtonColor.CGColor;
+    _btnPostJob.backgroundColor=InternalButtonColor;
+    _lblWelcometo.textColor=TitleColor;
+    _lblWelcometo.text=NSLocalizedString(@"Welcome to", @"");
+    _lblMessage.text=NSLocalizedString(@"You can now publish your first Job offer!", @"");
+    [_btnPostJob setTitle:NSLocalizedString(@"Post a Job", @"") forState:UIControlStateNormal];
+    [_btnEditProfile setTitle:NSLocalizedString(@"Edit my profile", @"") forState:UIControlStateNormal];
+    [_btnViewOnlineCandidate setTitle:NSLocalizedString(@"View online candidates", @"") forState:UIControlStateNormal];
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    _lblMSg.text=NSLocalizedString(@"Search by keywords", @"");
+    _txtSearchCandidate.placeholder=NSLocalizedString(@"Ex: apprentice, waiter, cook ...", @"");
+    _lblGpsMSg.text=NSLocalizedString(@"Targeted search by clicks", @"");
+}
+- (IBAction)btnGpsAction:(id)sender
+{
+//    if ([[APPDELEGATE.currentPlanDict valueForKey:@"expiredOn"] length]==0||[[APPDELEGATE.currentPlanDict  valueForKey:@"subscription_id"] length]==0)
+//    {
+//        if ([[APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"] intValue]>=1)
+//        {
+//            [self openPaymentData];
+//        }
+//        else
+//        {
+//            RecruiterFilterCandidateVC *rvc=[self.storyboard instantiateViewControllerWithIdentifier:@"RecruiterFilterCandidateVC"];
+//            rvc.delegate=self;
+//            UINavigationController *nav=[[UINavigationController alloc]initWithRootViewController:rvc];
+//            [self presentViewController:nav animated:YES completion:nil];
+//        }
+//    }
+//    else
+//    {
+        RecruiterFilterCandidateVC *rvc=[self.storyboard instantiateViewControllerWithIdentifier:@"RecruiterFilterCandidateVC"];
+        rvc.delegate=self;
+        UINavigationController *nav=[[UINavigationController alloc]initWithRootViewController:rvc];
+        
+        [self presentViewController:nav animated:YES completion:nil];
+   // }
+    
+}
+
+-(void)showProgress
+{
+    pageNumber = 0;
+    arrResponse = [[GetCandidate getModel] getResponseArray];
+    showProgressBar=YES;
+    [_tblCandidates reloadData];
+}
+
+- (IBAction)btnPostJobAction:(id)sender
+{
+    
+//    if ([[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"mobile_number"] length]>3)
+//    {
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+        [self.tabBarController setSelectedIndex:3];
+    
+//    }
+//    else
+//    {
+//    //[self.tabBarController setSelectedIndex:3];
+//    RecruiterVerifyViewController *rvc=[self.storyboard instantiateViewControllerWithIdentifier:@"RecruiterVerifyViewController"];
+//    [self presentViewController:rvc animated:YES completion:nil];
+//    }
+}
+
+- (IBAction)btnEditProfileAction:(id)sender
+{
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+    [self.tabBarController setSelectedIndex:4];
+}
+
+- (IBAction)btnFindOnlineCandidateAction:(id)sender
+{
+//    [[NSUserDefaults standardUserDefaults]setObject:@"1" forKey:@"prevLogined"];
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+    //[self.tabBarController setSelectedIndex:2];
+    [_viewbackgroundoverview setHidden:YES];
+    [_viewpopup setHidden:YES];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
+
+}
+-(void)loadDefaultView
+{
+    _viewbackgroundoverview.hidden=NO;
+    _viewpopup.hidden=NO;
+    [SharedClass showPopupView:_viewbackgroundoverview];
+    [SharedClass showPopupView:_viewpopup];
+    
+}
+
+#pragma mark - -----------TextField Delegates-----------------
+-(BOOL)textFieldShouldReturn:(UITextField *)textField
+{
+    if (textField.text.length > 0) {
+         [self getCandidateList:textField.text];
+    }
+    else{
+        pageNumber = 0;
+        [self getDefaultCandidate];
+    }
+   
+    [textField resignFirstResponder];
+    return  true;
+}
+//-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+//{
+//
+//    if ([[APPDELEGATE.currentPlanDict  valueForKey:@"expiredOn"] length]==0||[[APPDELEGATE.currentPlanDict  valueForKey:@"subscription_id"] length]==0)
+//    {
+//        if ([[APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"] intValue]>=1)
+//        {
+//            [self openPaymentData];
+//        }
+//    }
+//    else
+//    {
+//       // if (textField.text.length>0)
+//       // {
+//
+//       // }
+//
+//    }
+//    return true;
+//}
+
+-(BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+//    if ([[APPDELEGATE.currentPlanDict  valueForKey:@"expiredOn"] length]==0||[[APPDELEGATE.currentPlanDict  valueForKey:@"subscription_id"] length]==0)
+//    {
+//        if ([[APPDELEGATE.currentPlanDict valueForKey:@"search_candidate_count"] intValue]>=1)
+//        {
+//            [self openPaymentData];
+//        }
+//    }
+//    else
+//    {
+    if (([textField.text rangeOfCharacterFromSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]].location != NSNotFound && textField == _txtSearchCandidate) && ([string isEqualToString:@" "] && range.location == 0)) {
+        return NO;
+    }
+    
+        if (textField == _txtSearchCandidate) {
+        
+        // do not allow the first character to be space | do not allow more than one space
+        if ([string isEqualToString:@" "]) {
+            if (!textField.text.length)
+                return NO;
+            if (range.location == 0) {
+                return NO;
+            }
+            if ([[textField.text stringByReplacingCharactersInRange:range withString:string] rangeOfString:@"  "].length)
+                return NO;
+            
+        }
+    }
+   // }
+    
+    return YES;
+}
+-(void)textFieldDidEndEditing:(UITextField *)textField
+{
+    
+}
+
+
+#pragma mark - ----------Get Candidate List WebService--------------
+
+-(void)getCandidateList:(NSString *)text
+{
+    
+    NSMutableDictionary *params=[[NSMutableDictionary alloc]init];
+    [params setValue:[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"user_id"] forKey:@"user_id"];
+//    [params setValue:@"1" forKey:@"search_candidate_count"];
+    [params setValue:text forKey:@"search_key"];
+    WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+    webhelper.delegate=self;
+    webhelper.methodName=@"getCandidate";
+    [webhelper webserviceHelper:params webServiceUrl:kSearchCandidate methodName:@"getCandidate" showHud:YES inWhichViewController:self];
+}
+
+
+-(void)getDefaultCandidate
+{
+    NSMutableDictionary *params=[[NSMutableDictionary alloc]init];
+    [params setValue:[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"user_id"] forKey:@"user_id"];
+    [params setValue:[NSString stringWithFormat:@"%d",pageNumber] forKey:@"start"];
+    [params setValue:APPDELEGATE.userAddress forKey:@"city"];
+    WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+    webhelper.delegate=self;
+    webhelper.methodName=@"getCandidateList";
+    [webhelper webserviceHelper:params webServiceUrl:kSearchCandidate methodName:@"getCandidateList" showHud:YES inWhichViewController:self];
+}
+
+-(void)processSuccessful:(NSDictionary *)responseDict methodName:(NSString *)methodNameIs
+{
+    if ([[responseDict valueForKey:@"success"] boolValue]==NO)
+    {
+        if ([[responseDict valueForKey:@"active_user"] isEqualToString:@"0"])
+        {
+            if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userType"] isEqualToString:@"S"])
+            {
+                //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+                //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+            }
+            else if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"userType"]isEqualToString:@"E"])
+            {
+                //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+                //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+            }
+            
+            [[NSUserDefaults standardUserDefaults]synchronize];
+            [self.tabBarController dismissViewControllerAnimated:YES completion:nil];
+        }
+    }
+    
+//    if ([[responseDict valueForKey:@"active_user"] isEqualToString:@"0"])
+//    {
+//        if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userType"] isEqualToString:@"S"])
+//        {
+//            [[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+//            [[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+//        }
+//        else if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"userType"]isEqualToString:@"E"])
+//        {
+//            [[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+//            [[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+//        }
+//        
+//        [[NSUserDefaults standardUserDefaults]synchronize];
+//        [self.tabBarController dismissViewControllerAnimated:YES completion:nil];
+//    }
+    if ([methodNameIs isEqualToString:@"getCandidateList"])
+    {
+        if ([[responseDict valueForKey:@"success"]boolValue]==1)
+        {
+            if ([[responseDict valueForKey:@"allCandidates"]count]==0)
+            {
+                [SharedClass addLabelInUITableViewViewBackGround:self.tblCandidates];
+            }
+            [[GetCandidate getModel]setResponseArray:[responseDict valueForKey:@"allCandidates"]];
+            if ([[responseDict valueForKey:@"allCandidates"] count]>0)
+            {
+                if (pageNumber == 0) {
+                    [arrResponse removeAllObjects];
+                }
+                [arrResponse addObjectsFromArray:[responseDict valueForKey:@"allCandidates"]];
+            }
+            
+            [_tblCandidates reloadData];
+        }
+    }
+    else if ([methodNameIs isEqualToString:@"getCandidate"])
+    {
+        if ([[responseDict valueForKey:@"success"]boolValue]==1)
+        {
+            if ([[responseDict valueForKey:@"allCandidates"]count]==0)
+            {
+                [SharedClass addLabelInUITableViewViewBackGround:self.tblCandidates];
+            }
+            [[GetCandidate getModel]setResponseArray:[responseDict valueForKey:@"allCandidates"]];
+            //arrResponse = [[GetCandidate getModel] getResponseArray];
+            [arrResponse removeAllObjects];
+            [arrResponse addObjectsFromArray:[responseDict valueForKey:@"allCandidates"]];
+            
+            NSMutableDictionary *dict=[[NSMutableDictionary alloc]init];
+            dict=[APPDELEGATE.currentPlanDict mutableCopy];
+          //  [dict setValue:@"1" forKey:@"search_candidate_count"];
+            APPDELEGATE.currentPlanDict=dict;
+            
+            [_tblCandidates reloadData];
+        }
+        else
+        {
+            NSMutableDictionary *dict=[[NSMutableDictionary alloc]init];
+            dict=[APPDELEGATE.currentPlanDict mutableCopy];
+        //    [dict setValue:@"0" forKey:@"search_candidate_count"];
+            APPDELEGATE.currentPlanDict=dict;
+        }
+    }
+    else if ([methodNameIs isEqualToString:@"checkPlan"])
+    {
+        if ([[responseDict valueForKey:@"success"]boolValue]==1)
+        {
+            APPDELEGATE.currentPlanDict=[responseDict valueForKey:@"currentPlan"];
+            APPDELEGATE.arrPlanData=[responseDict valueForKey:@"data"];
+            if ([[[responseDict valueForKey:@"currentPlan"] valueForKey:@"expiredOn"] length]==0||[[[responseDict valueForKey:@"currentPlan"] valueForKey:@"subscription_id"] length]==0)
+            {
+                if (([[[responseDict valueForKey:@"currentPlan"] valueForKey:@" "] intValue]>=1)&&([[[responseDict valueForKey:@"currentPlan"] valueForKey:@"job_post_count"] intValue]>=1))
+                {
+                    [self openPaymentData];
+                }
+                
+            }
+        }
+    }
+}
+
+#pragma mark - ------TableView Delagtes & Datasources--------
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        return 130;
+    }
+    else{
+        return 103;
+    }
+}
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return [arrResponse count];
+}
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    SearchCandidateCell *cell=(SearchCandidateCell *)[tableView dequeueReusableCellWithIdentifier:@"SearchCandidateCell"];
+    if (!cell)
+    {
+        cell=[[SearchCandidateCell alloc]initWithStyle:UITableViewCellStyleDefault  reuseIdentifier:@"SearchCandidateCell"];
+    }
+    if ([[arrResponse objectAtIndex:indexPath.row] valueForKey:@"lattitude"] !=[NSNull null] && [[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"lattitude"]floatValue]>0 && [[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"lattitude"] length]>0)
+    {
+        locationCoordinateCandidate.latitude=[[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"lattitude"] doubleValue];
+        locationCoordinateCandidate.longitude=[[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"longitude"] doubleValue];
+        locationCoordinateCurrent.latitude=APPDELEGATE.latitude;
+        locationCoordinateCurrent.longitude=APPDELEGATE.longitude;
+        float DistanceKm = [self kilometersfromPlace:locationCoordinateCurrent andToPlace:locationCoordinateCandidate];
+        [cell setData:[arrResponse objectAtIndex:indexPath.row] withDistance:DistanceKm];
+    }
+    else
+    {
+        [cell setData:[arrResponse objectAtIndex:indexPath.row] withDistance:0.0];
+    }
+    
+    
+    if (showProgressBar)
+    {
+
+        [cell.viewProgressBar setHidden:NO];
+        [cell.progressView setHidden:NO];
+        [cell.viewProgressBar setHideGloss:NO];
+        [cell.lblSearchPercentage setHidden:NO];
+        [cell.progressView setProgress:[[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"matchingPercent"] floatValue]/100];
+        [cell.viewProgressBar setProgress:[[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"matchingPercent"] floatValue]/100];
+        [cell.lblSearchPercentage setHighlighted:YES];
+        cell.lblSearchPercentage.text=[NSString stringWithFormat:@"%@%%",[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"matchingPercent"]];
+    }
+    else
+    {
+        [cell.lblSearchPercentage setHidden:YES];
+        [cell.viewProgressBar setHidden:YES];
+        [cell.progressView setHidden:YES];
+        [cell.viewProgressBar setHideGloss:YES];
+    }
+    cell.selectionStyle=UITableViewCellSelectionStyleNone;
+    return cell;
+}
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    RecruiterLookCandateProfileViewController *rlvc=[self.storyboard instantiateViewControllerWithIdentifier:@"RecruiterLookCandateProfileViewController"];
+//    @property(nonatomic,strong)NSString *userId;
+//    @property(nonatomic,strong)NSString *jobTitle;
+//    @property(nonatomic,strong)NSString *apply_id;
+    rlvc.userId=[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"id"];
+    rlvc.jobTitle=[[arrResponse objectAtIndex:indexPath.row] valueForKey:@"first_name"];
+    rlvc.identifier=@"filter";
+    [self.navigationController pushViewController:rlvc animated:YES];
+}
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row==[arrResponse count]-1)
+    {
+        pageNumber=pageNumber+10;
+        [self getDefaultCandidate];
+    }
+}
+
+-(float)kilometersfromPlace:(CLLocationCoordinate2D)from andToPlace:(CLLocationCoordinate2D)to
+{
+    CLLocation *userloc = [[CLLocation alloc]initWithLatitude:from.latitude longitude:from.longitude];
+    CLLocation *dest = [[CLLocation alloc]initWithLatitude:to.latitude longitude:to.longitude];
+    CLLocationDistance dist = [userloc distanceFromLocation:dest]/1000;
+    //NSLog(@"%f",dist);
+    NSString *distance = [NSString stringWithFormat:@"%f",dist];
+    return [distance floatValue];
+}
+
+
+@end

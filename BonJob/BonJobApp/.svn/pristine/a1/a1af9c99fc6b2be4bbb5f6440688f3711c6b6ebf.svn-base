@@ -1,0 +1,16 @@
+# Uncomment the next line to define a global platform for your project
+ platform :ios, '9.0'
+ pod "BABCropperView"
+target 'BONJOB' do
+  # Uncomment the next line if you're using Swift or would like to use dynamic frameworks
+    use_frameworks!
+    pod 'XMPPFramework'
+    pod 'SwiftMessages'
+    pod 'CCDropDownMenus'
+    pod 'Firebase/Core'
+    pod 'Fabric'
+    pod 'Crashlytics'
+  # Pods for BONJOB
+    pod 'Siren', :git => 'https://github.com/ArtSabintsev/Siren.git', :branch => 'swift3.2'
+
+end

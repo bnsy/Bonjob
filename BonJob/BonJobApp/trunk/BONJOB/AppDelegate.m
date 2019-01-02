@@ -1,0 +1,697 @@
+//
+//  AppDelegate.m
+//  BONJOB
+//
+//  Created by Infoicon Technologies on 29/04/17.
+//  Copyright © 2017 Infoicon Technologies. All rights reserved.
+//
+
+#define SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+
+#import "AppDelegate.h"
+#import "HomeViewController.h"
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+#import "RecruiterTabarViewController.h"
+#import "TabbarViewController.h"
+#import "HomeViewController.h"
+#import "NotificationHelper.h"
+@import Firebase;
+#import <Fabric/Fabric.h>
+#import <Crashlytics/Crashlytics.h>
+
+int galleryviewint;
+@interface AppDelegate ()
+@end
+
+@implementation AppDelegate
+
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+{
+   // Fabric Config
+   [Fabric with:@[[Crashlytics class]]];
+    
+    // Firebase Config
+    [FIRApp configure];
+    [self checkAutoLogin];
+    self.currentPlanDict=[[NSDictionary alloc]init];
+    self.arrPlanData=[[NSMutableArray alloc]init];
+    
+    self.arrSelContractSeeker=[[NSMutableArray alloc]init];
+    self.arrSelEducationSeeker=[[NSMutableArray alloc]init];
+    self.arrSelExperienceSeeker=[[NSMutableArray alloc]init];
+    self.arrSelHoursSeeker=[[NSMutableArray alloc]init];
+    
+    self.arraySelSkillsRecruiter=[[NSMutableArray alloc]init];
+    self.arraySelEducationRecruiter=[[NSMutableArray alloc]init];
+    self.arraySelExperienceRecruiter=[[NSMutableArray alloc]init];
+    self.arraySelStatusRecruiter=[[NSMutableArray alloc]init];
+    self.arraySelMobilityRecruiter=[[NSMutableArray alloc]init];
+    self.arraySelLanguageRecruiter=[[NSMutableArray alloc]init];
+    
+    // Override point for customization after application launch.
+    self.arrOnlineBuddies=[[NSMutableArray alloc]init];
+//    if (launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey])
+//    {
+//        [self application:application didReceiveRemoteNotification:launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey]];
+//    }
+   
+  
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
+    //  AppDelegate.m
+    self.xmppManager = [XMPPManager sharedManager];
+    [[AFNetworkReachabilityManager sharedManager] startMonitoring];
+    
+    [[FBSDKApplicationDelegate sharedInstance] application:application
+                             didFinishLaunchingWithOptions:launchOptions];
+    
+    
+    //[[IQKeyboardManager sharedManager] setEnable:YES];
+    // optional
+//    [[IQKeyboardManager sharedManager] setEnableAutoToolbar:YES];
+//    [[IQKeyboardManager sharedManager] setShouldShowTextFieldPlaceholder:NO];
+//    [[IQKeyboardManager sharedManager] setShouldToolbarUsesTextFieldTintColor:NO];
+//    [[IQKeyboardManager sharedManager] setToolbarManageBehaviour:IQAutoToolbarByPosition];
+
+    BOOL isCreated=[DBManager createEditableCopyOfDatabaseIfNeeded:DATABASE_NAME];
+    if(isCreated)
+    {
+        NSLog(@"DATABASE CREATE SUCCESS");
+    }
+    else
+    {
+        NSLog(@"DATABASE CREATE FAILED");
+    }
+    [self testing];
+    // Add any custom logic here.
+    [self registerNotification];
+    
+    NSString * language = [[NSLocale preferredLanguages] firstObject];
+    NSLog(@"Language=%@",language);
+    NSArray *foo=[language componentsSeparatedByString:@"-"];
+    if ([[foo objectAtIndex:0] isEqualToString:@"fr"])
+    {
+        [[NSUserDefaults standardUserDefaults] setObject:@"2" forKey:@"language_id"];
+        [[NSUserDefaults standardUserDefaults]synchronize];
+    }
+    else
+    {
+        [[NSUserDefaults standardUserDefaults] setObject:@"2" forKey:@"language_id"];
+        [[NSUserDefaults standardUserDefaults]synchronize];
+    }
+    _locationManager = [[CLLocationManager alloc] init];
+    _locationManager.delegate = self;
+    _locationManager.distanceFilter = kCLDistanceFilterNone;
+    _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0)
+        [_locationManager requestWhenInUseAuthorization];
+    [_locationManager startUpdatingLocation];
+    
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(statusChanged:) name:@"statusChanged" object:nil];
+    
+    
+    
+    
+//    if (launchOptions != nil)
+//    {
+//        // opened from a push notification when the app is closed
+//        NSDictionary* userInfo = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+//
+//
+//        if (userInfo != nil)
+//        {
+//            UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main"
+//                                                                     bundle: nil];
+//
+//            ViewController *controller = (ViewController*)[mainStoryboard
+//                                                               instantiateViewControllerWithIdentifier: @"ViewController"];
+//
+//            self.window.rootViewController=controller;
+//
+//
+////            NSMutableDictionary *pushData;
+////            pushData=[[[[userInfo objectForKey:@"aps"] valueForKey:@"alert"] valueForKey:@"data"] mutableCopy];
+////            [[NotificationHelper sharedInstance]SetDataForNotification:pushData andType:[pushData valueForKey:@"type"]];
+////             NSLog(@"userInfo->%@", [userInfo objectForKey:@"aps"]);
+//
+//            //-------------
+//            NSDictionary *notification = [launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+//            if (notification) {
+//                NSLog(@"app recieved notification from remote%@",notification);
+//                [self application:application didReceiveRemoteNotification:notification];
+//            } else {
+//                NSLog(@"app did not recieve notification");
+//            }
+//            //------------
+//        }
+//    }
+//    else
+//    {
+//        // opened app without a push notification.
+//    }
+    
+    
+   // [[NSUserDefaults standardUserDefaults]setObject:@"YES" forKey:@"logined"];
+    
+  //  [[STPPaymentConfiguration sharedConfiguration] setPublishableKey:@"pk_test_xd43uQWxFtmWECZ6tMYLBGjj"];
+    
+    // Test key: pk_test_xd43uQWxFtmWECZ6tMYLBGjj
+    // Publish Key : pk_live_mwjwNKGvwpHzhdg7qlCH3whf
+    
+    // do any other necessary launch configuration
+    IQKeyboardManager.sharedManager.enable=YES;
+    return YES;
+}
+
+-(void)checkAutoLogin
+{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main"
+                                                                                    bundle: nil];
+    NSString *userType =  [[NSUserDefaults standardUserDefaults]objectForKey:@"AUTOLOGIN"];
+    if ([userType  isEqual: @"S"]) {
+      //  [[NSUserDefaults standardUserDefaults]setObject:@"0" forKey:@"prevLogined"];
+        UITabBarController *vc = (UITabBarController *)[storyboard instantiateViewControllerWithIdentifier:@"TabbarViewController"];
+        vc.tabBar.translucent = NO;
+        
+        APPDELEGATE.window.rootViewController=vc;
+        [self loginUserForChat];
+        
+    }
+    else if([userType isEqual: @"R"])
+    {
+      //  if ([[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"mobile_number"] length]>=3)
+      //  {
+            
+            UITabBarController *vc = (UITabBarController *)[storyboard instantiateViewControllerWithIdentifier:@"RecruiterTabarViewController"];
+            vc.tabBar.translucent = NO;
+            
+            APPDELEGATE.window.rootViewController=vc;
+            [self loginUserForChat];
+//        }
+//        else
+//        {
+//
+//        }
+    }
+    else if([userType isEqual: @"A"])
+    {
+        
+//        UITabBarController *vc = (UITabBarController *)[storyboard instantiateViewControllerWithIdentifier:@"RecruiterTabarViewController"];
+//        vc.tabBar.translucent = NO;
+//        [vc setSelectedIndex:2];
+//        
+//        APPDELEGATE.window.rootViewController=vc;
+//
+//       
+//        
+//    
+//        
+//        
+////        [[[[vc tabBar]items]objectAtIndex:0]setEnabled:FALSE];
+////        [[[[vc tabBar]items]objectAtIndex:1]setEnabled:FALSE];
+////        [[[[vc tabBar]items]objectAtIndex:3]setEnabled:FALSE];
+//        [self loginUserForChat];
+    }
+    
+}
+
+#pragma mark- Chat Login
+
+-(void)loginUserForChat
+{
+    
+    NSString *userName=[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"user_id"];
+    
+    NSString *strUserName=[NSString stringWithFormat:@"bonjob_%@@%@",userName,kDefaultChatServer];
+    
+    //NSString *strPassword=[NSString stringWithFormat:@"bonjob_%@",userName];
+    NSString *strPassword=[[[NSUserDefaults standardUserDefaults] valueForKey:@"userData"] valueForKey:@"chat_password"];
+    
+    NSString* chatUser=strUserName;//@"bonjob_54@172.104.8.51";
+    //NSString* chatUser=@"bonjob_2";
+    NSString* password=strPassword;//@"bonjob_54";
+    NSLog(@"Password=%@",password);
+    
+    //    NSString* chatUser=@"bonjob_42@172.104.8.51";
+    //    //NSString* chatUser=@"bonjob_1";
+    //    NSString* password=@"bonjob_42";
+    [self setChatUserWithName:chatUser pass:password];
+    
+    BOOL connected = NO;
+    
+    if([chatUser isEqualToString:@""])
+    {
+        
+    }
+    else
+    {
+        self.xmppManager =[XMPPManager sharedManager];
+        [self.xmppManager connect];
+    }
+    //[[self appDelegate] disconnect];
+    
+    //connected = [[self appDelegate] connect];
+    NSLog(@"*** %@ = connected = %i",chatUser, connected);
+    
+}
+-(void)setChatUserWithName:(NSString*)name pass:(NSString*)pass
+{
+    
+    name=!name ? @"": name;
+    pass=!pass ? @"": pass;
+    
+    [[NSUserDefaults standardUserDefaults] setObject:name forKey:@"userID"];
+    [[NSUserDefaults standardUserDefaults] setObject:pass forKey:@"userPassword"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
+}
++(void)changeRoot
+{
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Main"
+                                                         bundle: nil];
+    ViewController *rvc=[storyboard instantiateViewControllerWithIdentifier:@"ViewController"];
+    
+    NSArray *viewControllerArray = @[rvc];
+    
+    UINavigationController *nav=[[UINavigationController alloc]init];
+    
+    [nav setViewControllers:viewControllerArray animated:YES];
+    
+    APPDELEGATE.window.rootViewController=nav;
+    
+    [[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+    [[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+}
+
+-(void)statusChanged:(NSNotification *)notification
+{
+    NSDictionary *userDic=notification.userInfo;
+    if ([[userDic valueForKey:@"status"] isEqualToString:@"available"])
+    {
+        if ([self.arrOnlineBuddies containsObject:[userDic valueForKey:@"username"]])
+        {
+            
+        }
+        else
+        {
+            [self.arrOnlineBuddies addObject:[userDic valueForKey:@"username"]];
+        }
+    }
+    else if([[userDic valueForKey:@"status"] isEqualToString:@"unavailable"])
+    {
+        if ([self.arrOnlineBuddies containsObject:[userDic valueForKey:@"username"]] && self.arrOnlineBuddies.count>0)
+        {
+            [self.arrOnlineBuddies removeObject:[userDic valueForKey:@"username"]];
+        }
+    }
+}
+
+
+-(void)testing{
+    
+   // NSString *strFrom =  @"2017-08-23 09:06:36";
+   // NSString *strTo =  @"2017-08-23 10:19:27";
+    
+    //NSDate *dateFrom =  [SharedClass getDateFromStringFormat:strFrom inputDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+   // NSDate *dateTo =  [SharedClass getDateFromStringFormat:strTo inputDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    
+    //NSString *time = [SharedClass getTimeDurationBetweenToDate:dateFrom dateTo:dateTo];
+    
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url
+  sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
+{
+    
+    BOOL handled = [[FBSDKApplicationDelegate sharedInstance] application:application
+                                                                  openURL:url
+                                                        sourceApplication:sourceApplication
+                                                               annotation:annotation
+                    ];
+    // Add any custom logic here.
+    return handled;
+}
+
+//+ (id)sharedManager {
+//    static MyManager *sharedMyManager = nil;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        sharedMyManager = [[self alloc] init];
+//    });
+//    return sharedMyManager;
+//}
+
+//- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
+//{
+//    NSString * token = [NSString stringWithFormat:@"%@", deviceToken];
+//    //Format token as you need:
+//    token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+//    token = [token stringByReplacingOccurrencesOfString:@">" withString:@""];
+//    token = [token stringByReplacingOccurrencesOfString:@"<" withString:@""];
+//    NSLog(@"token=%@",token);
+//    [[NSUserDefaults standardUserDefaults] setObject:token forKey:@"Token"]; //save token to resend it if request fails
+//    
+//    [[NSUserDefaults standardUserDefaults]synchronize];
+//    // set flag for request status
+//    //[DataUpdater sendUserToken]; //send token
+//}
+
+#pragma mark--notification registration------
+-(void)registerNotification
+{
+    
+#ifdef __IPHONE_8_0
+    UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIRemoteNotificationTypeBadge|UIRemoteNotificationTypeSound|UIRemoteNotificationTypeAlert)
+                                                                             categories:nil];
+    [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+#else
+    UIRemoteNotificationType myTypes = UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeAlert | UIRemoteNotificationTypeSound;
+    [[UIApplication sharedApplication] registerForRemoteNotificationTypes:myTypes];
+#endif
+    
+}
+
+
+#pragma mark -
+#pragma mark -=====: PUSH NOTIFICATION  Method :======
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings* )notificationSettings
+{
+    
+    //register to receive notifications
+    [application registerForRemoteNotifications];
+    
+}
+
+- (void)application:(UIApplication* )application handleActionWithIdentifier:(NSString* )identifier forRemoteNotification:(NSDictionary *)userInfo completionHandler:(void(^)())completionHandler
+{
+    //handle the actions
+    if ([identifier isEqualToString:@"declineAction"])
+    {
+        
+    }
+    else if ([identifier isEqualToString:@"answerAction"])
+    {
+        
+    }
+}
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet: [NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+    token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSLog(@"Device token---  :%@", token);
+    [[NSUserDefaults standardUserDefaults]setObject:token forKey:@"deviceToken"];
+    [[NSUserDefaults standardUserDefaults]synchronize];
+}
+
+-(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notification" message:@"Change comment approval status." delegate:self cancelButtonTitle:@"OK"otherButtonTitles:nil];
+    [alert show];
+}
+
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+{
+    if ([[[userInfo objectForKey:@"aps"] valueForKey:@"alert"]isKindOfClass:[NSString class]])
+    {
+        NSLog(@"Recieving Testing Notification.......");
+        return;
+    }
+    //float osVersion= [[UIDevice currentDevice].systemVersion floatValue];
+    NSMutableDictionary *pushData;
+    pushData=[[[[userInfo objectForKey:@"aps"] valueForKey:@"alert"] valueForKey:@"data"] mutableCopy];
+    NSLog(@"Push Notification info is:%@",userInfo);
+    if(application.applicationState == UIApplicationStateInactive)
+    {
+        NSLog(@"Inactive");
+        // the app is in inactive state
+        [[NotificationHelper sharedInstance]SetDataForNotification:pushData andType:[pushData valueForKey:@"type"]];
+        //completionHandler(UIBackgroundFetchResultNewData);
+    }
+    else if (application.applicationState == UIApplicationStateBackground)
+    {
+        // the app is in background
+        [[NotificationHelper sharedInstance]SetDataForNotification:pushData andType:[pushData valueForKey:@"type"]];
+        //completionHandler(UIBackgroundFetchResultNewData);
+    }
+    else if (application.applicationState == UIApplicationStateActive)
+    {
+        // user in currently active in application
+        [[NotificationHelper sharedInstance]SetDataForLiveActivity:pushData andType:[pushData valueForKey:@"type"]];
+    }
+    else
+    {
+        
+    }
+    
+}
+
+-(void)setbackup:(NSDictionary *)dict;
+{
+    NSString *msg = [dict valueForKey:@"message"];//[[message elementForName:@"body"] stringValue];
+    NSString *from = [dict valueForKey:@"from"];//[[message attributeForName:@"from"] stringValue];
+    
+    NSString *to =[dict valueForKey:@"to"];// [[message attributeForName:@"to"] stringValue];
+    // to = [self getToUser:to]; //vishal commented
+    NSLog(@"%@ %@",msg,from);
+    
+    
+    
+    NSMutableDictionary *m = [[NSMutableDictionary alloc] init];
+    [m setObject:msg forKey:@"msg"];
+    
+    NSArray * arr = [from componentsSeparatedByString:@"/"];
+    from=arr.count>1 ? arr[0] : from;
+    
+    NSString *timeStamp =[NSString stringWithFormat:@"%@",[dict  valueForKey:@"timestamp"]] ;//[[message elementForName:@"stamp"] stringValue];
+    NSTimeInterval _interval=[timeStamp doubleValue];
+    
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:_interval/1000];
+    NSString* time=[[Alert getDateFormatWithString:GET_FORMAT_TYPE] stringFromDate:date];
+    
+    //Save Dialog History in Database
+    
+    DBManager *dataManager=[[DBManager alloc]initWithDB:DATABASE_NAME];
+    NSString* dialogId=[self getNickNameFromUserName:from];
+    
+    NSString* queryCreationDate=[NSString stringWithFormat:@"select created_date from DIALOG_HISTORY where dialog_id=\"%@\"",dialogId];
+    NSString* creationDate=[dataManager getCreationDate:queryCreationDate];
+    
+    NSString* queryUnread=[NSString stringWithFormat:@"select unread_count from DIALOG_HISTORY where dialog_id=\"%@\"",dialogId];
+    int unread=[dataManager getUnreadCount:queryUnread];
+    
+    
+    DialogHistory* dialogHistory=[[DialogHistory alloc]init];
+    dialogHistory.dialog_id=dialogId;
+    dialogHistory.chat_id=@"0"; // In case group will be r
+    dialogHistory.last_message=msg;
+    dialogHistory.last_username=dialogId;
+    dialogHistory.last_message_date=time;
+    dialogHistory.created_date=creationDate!=nil ? creationDate : time;
+    dialogHistory.unread_count=0;
+    //        if ([self isCurrentView])
+    //            dialogHistory.unread_count=0;
+    //        else
+    dialogHistory.unread_count=unread+1;
+    //Insert Data into database
+    [dataManager insertAndUpdateDialogHistoryWithArrayUsingTrasaction:@[dialogHistory]];
+    //[[NSNotificationCenter defaultCenter] postNotificationName:@"unreadCountUpdated" object:nil];
+    //===========SAVING IN DATABASE =================//
+    
+    
+    ChatHistory *chat=[[ChatHistory alloc] init];
+    chat.chat_id=@"0";
+    chat.from_username=from;
+    chat.to_username=to;
+    chat.chat_message=msg;
+    chat.chat_timestamp=time;
+    chat.message_stamp = timeStamp;
+    NSArray *ar=[[NSArray alloc]initWithObjects:chat, nil];
+    DBManager *objDB=[[DBManager alloc]initWithDB:DATABASE_NAME];
+    [objDB insertAndUpdateChatWithArrayUsingTrasaction:ar];
+    
+    
+    //Update Chat View
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"OnIncomingMessageUpdateDialogHistory" object:nil userInfo:nil];
+}
+
+-(NSString*)getNickNameFromUserName:(NSString*)name{
+    NSArray* myArray = [name  componentsSeparatedByString:@"@"];
+    
+    NSString* firstString = myArray.count==2 ?[myArray objectAtIndex:0]:name;
+    return firstString;
+    
+}
+
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+     [self.xmppManager disconnect];
+    // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+    // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
+}
+
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+    [self.xmppManager disconnect];
+    [self.xmppManager disconnect];
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
+    // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+}
+
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+    [self.xmppManager connect];
+  
+  // [self checkappCurrentVersion];
+    // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+}
+    -(void)checkappCurrentVersion
+    {
+       // Get Version info Using Itunes web service
+        WebserviceHelper *webhelper=[[WebserviceHelper alloc]init];
+        webhelper.delegate=self;
+        webhelper.methodName=@"checkAppVersion";
+        [webhelper webserviceHelper:@"https://itunes.apple.com/lookup?id=1330157888" showHud:NO];
+        
+    }
+-(void)processSuccessful:(NSDictionary *)responseDict methodName:(NSString *)methodNameIs
+    {
+        if ([[responseDict valueForKey:@"active_user"] isEqualToString:@"0"])
+        {
+            if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userType"] isEqualToString:@"S"])
+            {
+                //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+                //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+            }
+            else if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"userType"]isEqualToString:@"E"])
+            {
+                //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+                //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+            }
+            
+            [[NSUserDefaults standardUserDefaults]synchronize];
+        }
+        if ([methodNameIs isEqualToString:@"checkAppVersion"])
+        {
+           
+           NSLog(@"%@",responseDict[@"results"]);
+            NSString *newVersion = [[NSUserDefaults standardUserDefaults]objectForKey:@"NewVersion"];
+            
+            if(![responseDict[@"results"][0][@"version"] isEqualToString:newVersion])
+            {
+                UIAlertView *alert =[[UIAlertView alloc]initWithTitle:@"BonJob" message:@"New Version is availab le on App Store, Please update your applciation" delegate:self cancelButtonTitle:nil otherButtonTitles:@"Update", nil];
+                [alert show];
+            }
+        }
+    }
+
+#pragma mark - ALERTVIEW DELEGATE ============================
+    
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+   
+        
+    NSString *iTunesLink = @"http://phobos.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1330157888";
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:iTunesLink]];
+   
+    
+}
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+  //  [[NSUserDefaults standardUserDefaults]setObject:@"1.2.2" forKey:@"NewVersion"];
+  //  [[NSUserDefaults standardUserDefaults]synchronize];
+ //  [self checkappCurrentVersion];
+    [self.xmppManager connect];
+    [FBSDKAppEvents activateApp];
+    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+}
+
+
+- (void)applicationWillTerminate:(UIApplication *)application
+{
+    [self.xmppManager disconnect];
+    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    if ([[[NSUserDefaults standardUserDefaults] valueForKey:@"userType"] isEqualToString:@"S"])
+    {
+        //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+        //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+    }
+    else if ([[[NSUserDefaults standardUserDefaults]valueForKey:@"userType"]isEqualToString:@"E"])
+    {
+        //[[NSUserDefaults standardUserDefaults]setObject:@"" forKey:@"userType"];
+        //[[NSUserDefaults standardUserDefaults]setObject:nil forKey:@"userData"];
+    }
+    [[NSUserDefaults standardUserDefaults]setObject:@"NO" forKey:@"logined"];
+    [[NSUserDefaults standardUserDefaults]setObject:@"NO" forKey:@"SeekerLogined"];
+    [[NSUserDefaults standardUserDefaults]setObject:@"NO" forKey:@"RecLogined"];
+    [[NSUserDefaults standardUserDefaults]synchronize];
+}
+
+#pragma mark - ----CLLOcationManager Delegate------–-------
+#pragma mark - -------CLLocation Manager Delegate-------
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    currLocation=newLocation;
+    NSLog(@"OldLocation %f %f", oldLocation.coordinate.latitude, oldLocation.coordinate.longitude);
+    NSLog(@"NewLocation %f %f", newLocation.coordinate.latitude, newLocation.coordinate.longitude);
+    [manager stopUpdatingLocation];
+    CLGeocoder *geocoder = [[CLGeocoder alloc] init];
+    [geocoder reverseGeocodeLocation:newLocation
+                   completionHandler:^(NSArray *placemarks, NSError *error)
+     {
+         
+         if (error) {
+             NSLog(@"Geocode failed with error: %@", error);
+             return;
+         }
+         
+         if (placemarks && placemarks.count > 0)
+         {
+             CLPlacemark *placemark = placemarks[0];
+             
+             //address = [[placemark.addressDictionary valueForKey:@"FormattedAddressLines"] componentsJoinedByString:@", "];
+             self.latitude = placemark.location.coordinate.latitude;
+             self.longitude = placemark.location.coordinate.longitude;
+             NSString *strPlace;
+             if(placemark.postalCode  == nil)
+             {
+                 strPlace=[NSString stringWithFormat:@"%@",placemark.locality];
+             }
+             else{
+                 strPlace=[NSString stringWithFormat:@"%@, %@",placemark.locality,placemark.postalCode];
+             }
+          //   self.latitude = 50.278990;
+           //  self.longitude = 3.969226;
+ 
+            // strPlace = @"Maubege, 59600";
+             self.userAddress=strPlace;
+             //self.userAddress=placemark.locality;
+         }
+         
+     }];
+}
+
+
+//- (BOOL)isNetWorkAvailable
+//{
+//
+//    AFNetworkReachabilityManager *reach = [AFNetworkReachabilityManager  reachabilityForInternetConnection];
+//    NetworkStatus netStatus = [reach currentReachabilityStatus];
+//
+//    if (netStatus == NotReachable) {
+//
+//        [[[[[iToast makeText:NetworkError]
+//            setGravity:iToastGravityBottom] setDuration:iToastDurationNormal]setBgRed:1.0] show];
+//
+//        return NO;
+//    } else {
+//        return YES;
+//    }
+//    return YES;
+//}
+
+
+
+@end
